@@ -1,0 +1,14 @@
+name: SDG multilabel classification
+conda_env: main_environment.yml
+
+entry_points:
+    main:
+        parameters:
+            hydra_configurations:
+                description: >
+                    These are the string-like override methods used by Hydra to 
+                    change the default configurations of the pipeline.
+                type: str
+                default: ''
+        command:
+            python3 main.py $(echo {hydra_configurations})
