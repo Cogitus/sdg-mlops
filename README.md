@@ -38,11 +38,12 @@ $ mlflow run . -P hydra_configurations="project_name=deploy_model model.seed=879
 ## Running chosen steps
 If you not specify, all the steps of the pipeline will run on the following order:
 
-1) ```download_data```
-2) ```preprocess_data```
-3) ```split_data```
-4) ```train```
-5) ```evaluate_model```
+1) [```download_data```](download_data/run.py)
+2) [```transform_data```](transform_data/run.py)
+3) [```preprocess_data```](preprocess_data/run.py)
+4) [```split_data```](split_data/run.py)
+5) [```train```](train/run.py)
+6) [```evaluate_model```](evaluate_model/run.py)
 
 But if you want, you can choose to run the steps that you want, although they must follow priority the order above. Thus, if you choose to run ```download_data``` and ```train```, the first experiment (```download_data```) will be executed and then the second (```train```).
 
@@ -53,6 +54,8 @@ mlflow run . -P hydra_configurations="main.steps2execute='download_data,train'"
 ```
 
 __OBS__: Note that on that last example, ```model``` is like a dictionary with more than one key inside of it accessible with the ```.``` operator.
+
+__OBS²__: There is a difference between the ```transform_data``` and ```preprocess_data``` steps. Since the main objective of the model is to be applied on academic works written in *portuguese*, one needs to first translate the texts from *portuguese* to *english* before working on the Natural Language Processing steps. Thus, ```transform_data``` is responsible for this and ```preprocess_data``` for the other said steps.
 
 ## Another default configurations and configurations override.
 The configurations that are being passed to *Hydra* manipulation can be found at the file [```config.yaml```](config.yaml) and since *Hydra* permits it, they can also be overwriten at the CLI running calls.
