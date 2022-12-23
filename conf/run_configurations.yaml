@@ -1,0 +1,12 @@
+main:
+  project_name: sdg-onu
+  experiment_name: development
+  steps2execute:
+    - download_data
+    - preprocess_data
+    - split_data
+    - train
+    - evaluate_model
+
+defaults:
+  - override hydra/job_logging: custom

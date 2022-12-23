@@ -2,6 +2,7 @@
 mlruns/
 mlartifacts/
 mlruns.db
+run_old.py
 
 # Hydra
 outputs/
@@ -11,7 +12,7 @@ wandb
 wandb-debug.log
 logs
 summary*
-run*
+run\b(?!\.py)\b*
 
 # pynlint
 .pylintrc
