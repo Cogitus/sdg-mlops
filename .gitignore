@@ -1,8 +1,10 @@
 # Mlflow
 mlruns/
 mlartifacts/
-outputs/
 mlruns.db
+
+# Hydra
+outputs/
 
 # wandb
 wandb
@@ -10,6 +12,9 @@ wandb-debug.log
 logs
 summary*
 run*
+
+# pynlint
+.pylintrc
 
 # Mac
 .DS_Store

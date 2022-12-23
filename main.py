@@ -3,14 +3,14 @@ import logging
 
 import hydra
 import mlflow
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 
 logger = logging.getLogger(__name__)
 
 
 # this hydra decorator passes the dict config as a DictConfig parameter.
-@hydra.main(config_name='run_configurations')
+@hydra.main(config_path='conf', config_name='run_configurations', version_base=None)
 def run(configuration:DictConfig) -> None:
     # previously setting the wandb configurations
     os.environ["WANDB_PROJECT"] = configuration["main"]["project_name"]
