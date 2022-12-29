@@ -133,10 +133,59 @@ def collect_documents(
     pbar.finish()
 
 
-def save_data(data: Any, filename: str, filepath: Optional[str] = os.getcwd()) -> None:
+def save_data(
+    data: Any,
+    project_name: str,
+    filename: str,
+    filepath: Optional[str] = os.getcwd(),
+    remote: Optional[bool] = False,
+) -> None:
+    # local where the file already is or where is to save it (locally)
     save_path = os.path.join(filepath, filename)
-    with open(save_path, "w") as file:
-        json.dump(data, file, indent=2)
+
+    if remote:
+        logger.info(f"Saving {filename} at a wandb project `{project_name}`")
+
+        with tempfile.TemporaryDirectory() as TMP_DIR:
+            logger.info("Starting conection with WandB")
+
+            with wandb.init(
+                job_type="download_data",
+                project="sdg-onu",
+                tags=["dev", "data", "download"],
+            ) as run:
+                logger.info(f"Creating artifact for {filename} at {TMP_DIR}")
+
+                # instatiating a new artifact for the data
+                artifact = wandb.Artifact(
+                    name=filename, type="raw_data", description=""
+                )
+
+                try:
+                    # contents of the file for 0 is '' and 2 is '[]'
+                    is_empty_file = os.path.getsize(save_path) in [0, 2]
+                except FileNotFoundError:
+                    is_empty_file = True
+
+                # conditions for writing a file on the temporary folder:
+                # the downloaded data must not be already saved locally.
+                if not os.path.exists(save_path) or is_empty_file:
+                    # modifying the value of `save_path` to one in a tmp folder
+                    save_path = os.path.join(TMP_DIR, filename)
+                    with open(save_path, "wt") as file_handler:
+                        json.dump(data, file_handler, indent=2)
+
+                artifact.add_file(save_path, filename)
+
+                logger.info(f"Logging `{filename}` artifact.")
+
+                run.log_artifact(artifact)
+                artifact.wait()
+    else:
+        logger.info(f"Saving {filename} at {filepath}")
+
+        with open(save_path, "w") as file:
+            json.dump(data, file, indent=2)
 
 
 def main() -> None:
@@ -161,7 +210,14 @@ def main() -> None:
 
     get_data("https://www.sba.org.br/open_journal_systems/index.php/cba")
 
-    print(titles, authors, affiliations, dois, keywords, abstracts)
+    wandb_save = partial(save_data, project_name="sdg-onu", remote=True)
+
+    wandb_save(data=titles, filename="titles.json")
+    wandb_save(data=authors, filename="authors.json")
+    wandb_save(data=affiliations, filename="affiliations.json")
+    wandb_save(data=dois, filename="dois.json")
+    wandb_save(data=keywords, filename="keywords.json")
+    wandb_save(data=abstracts, filename="abstracts.json")
 
 
 if __name__ == "__main__":
