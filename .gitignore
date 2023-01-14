@@ -10,12 +10,13 @@ outputs/
 # wandb
 wandb
 wandb-debug.log
+artifacts/
 logs
 summary*
 run\b(?!\.py)\b*
 
 # pynlint
-.pylintrc
+# .pylintrc
 
 # Mac
 .DS_Store

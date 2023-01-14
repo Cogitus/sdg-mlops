@@ -5,6 +5,7 @@ entry_points:
     main:
         parameters:
             hydra_configurations:
+                # TODO
                 description: >
                     These are the string-like override methods used by Hydra to 
                     change the default configurations of the pipeline.
@@ -12,3 +13,59 @@ entry_points:
                 default: ''
         command:
             python3 main.py $(echo {hydra_configurations})
+
+    download_data:
+        parameters:
+            hydra_configurations:
+                # TODO
+                description: >
+                    These are the string-like override methods used by Hydra to 
+                    change the default configurations of the pipeline.
+                type: str
+                default: ''
+        command:
+            python3 ./download_data/main.py $(echo {hydra_configurations})  
+
+    preprocess_data:
+        parameters:
+            # TODO
+            description: >
+                These are the string-like override methods used by Hydra to 
+                change the default configurations of the pipeline.
+            type: str
+            default: ''
+        command:
+            python3 ./preprocess_data/main.py $(echo {hydra_configurations})
+    
+    split_data:
+        parameters:
+            # TODO
+            description: >
+                These are the string-like override methods used by Hydra to 
+                change the default configurations of the pipeline.
+            type: str
+            default: ''
+        command:
+            python3 ./split_data/main.py $(echo {hydra_configurations})
+    
+    train:
+        parameters:
+            # TODO
+            description: >
+                These are the string-like override methods used by Hydra to 
+                change the default configurations of the pipeline.
+            type: str
+            default: ''
+        command:
+            python3 ./train/main.py $(echo {hydra_configurations})
+    
+    evaluate_model:
+        parameters:
+            # TODO
+            description: >
+                These are the string-like override methods used by Hydra to 
+                change the default configurations of the pipeline.
+            type: str
+            default: ''
+        command:
+            python3 ./evaluate_model/main.py $(echo {hydra_configurations})

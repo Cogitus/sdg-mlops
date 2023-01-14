@@ -1,27 +1,124 @@
-import os
-import re
-import glob
-import time
-from unicodedata import normalize, combining
+import argparse
+import logging
+import tempfile
+from pathlib import Path
+from typing import Optional
 
-# For advanced NLP Processing
-import spacy
-import nltk
-from nltk.stem import SnowballStemmer
-from nltk.tokenize import word_tokenize
-# the rest of third party libraries
-import numpy as np
-import pandas as pd
+import wandb
 from tqdm import tqdm
-import tensorflow as tf
-from tensorflow import keras
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MultiLabelBinarizer
 
-# models from spacy
-import en_core_web_lg
+# for the typehint of the runs
+from wandb.sdk.wandb_run import Run
+
+logging.basicConfig(
+    format="[%(asctime)s][%(levelname)s]: %(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
+def load_data(
+    artifact_name: str,
+    use_local: bool,
+    run: Run,
+    local_savepath: Optional[Path] = Path("./artifacts"),
+) -> Path:
+    # import artifact from wandb
+    if not use_local:
+        logger.info(
+            f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
+        )
+        artifact = run.use_artifact(artifact_name, type="raw_data")
+        local_savepath = artifact.download(local_savepath)
 
-if __name__ == '__main__':
-    print('executado')
+    return local_savepath
+
+
+def main(args: argparse.Namespace) -> None:
+    logger.info(args.persist_artifacts)
+    # run = wandb.init(
+    #     job_type="preprocess_data",
+    #     project="sdg-onu",
+    #     tags=["dev", "data", "preprocess"],
+    # )
+
+    # with tempfile.TemporaryDirectory() as tmp_dir:
+    #     # retrieving the data from weights and bias
+    #     titles_path = load_data(
+    #         run=run, artifact_name=args.titles_tag, use_local=args.persist_artifacts
+    #     )
+    #     authors_path = load_data(
+    #         run=run, artifact_name=args.authors_tag, use_local=args.persist_artifacts
+    #     )
+    #     affiliations_path = load_data(
+    #         run=run,
+    #         artifact_name=args.affiliations_tag,
+    #         use_local=args.persist_artifacts,
+    #     )
+    #     dois_path = load_data(
+    #         run=run, artifact_name=args.dois_tag, use_local=args.persist_artifacts
+    #     )
+    #     keywords_path = load_data(
+    #         run=run, artifact_name=args.keywords_tag, use_local=args.persist_artifacts
+    #     )
+    #     abstracts_path = load_data(
+    #         run=run, artifact_name=args.abstracts_tag, use_local=args.persist_artifacts
+    #     )
+
+    #     logging.info(titles_path)
+    #     logging.info(authors_path)
+    #     logging.info(affiliations_path)
+    #     logging.info(dois_path)
+    #     logging.info(keywords_path)
+    #     logging.info(abstracts_path)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Download a file from Weights and Biases (W&B) and preprocess its text contents"
+    )
+
+    parser.add_argument(
+        "--titles_tag",
+        type=str,
+        help="Path on W&B to the titles artifact",
+        required=True,
+    )
+    parser.add_argument(
+        "--authors_tag",
+        type=str,
+        help="Path on W&B to the authors artifact",
+        required=True,
+    )
+    parser.add_argument(
+        "--affiliations_tag",
+        type=str,
+        help="Path on W&B to the affiliations artifact",
+        required=True,
+    )
+    parser.add_argument(
+        "--dois_tag", type=str, help="Path on W&B to the dois artifact", required=True
+    )
+    parser.add_argument(
+        "--keywords_tag",
+        type=str,
+        help="Path on W&B to the keywords artifact",
+        required=True,
+    )
+    parser.add_argument(
+        "--abstracts_tag",
+        type=str,
+        help="Path on W&B to the abstracts artifact",
+        required=True,
+    )
+    parser.add_argument(
+        "--persist_artifacts",
+        type=str,
+        help="Flag that indicates if the downloaded W&B objects should be or not be stored locally",
+        required=False,
+    )
+
+    args = parser.parse_args()
+
+    main(args)

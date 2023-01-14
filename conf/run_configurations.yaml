@@ -8,5 +8,17 @@ main:
     - train
     - evaluate_model
 
+data:
+  landing_page: "https://www.sba.org.br/open_journal_systems/index.php/cba"
+  wandb:
+    tag:
+      titles: cogitus/sdg-onu/titles.json:latest
+      authors: cogitus/sdg-onu/authors.json:latest
+      affiliations: cogitus/sdg-onu/affiliations.json:latest
+      dois: cogitus/sdg-onu/dois.json:latest
+      keywords: cogitus/sdg-onu/keywords.json:latest
+      abstracts: cogitus/sdg-onu/abstracts.json:latest
+    project: sdg-onu
+
 defaults:
   - override hydra/job_logging: custom
