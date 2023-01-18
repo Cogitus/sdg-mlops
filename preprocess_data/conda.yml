@@ -10,5 +10,5 @@ dependencies:
       - numpy
       - pandas
       - requests
-      - tqdm
+      - progressbar2
       - wandb
