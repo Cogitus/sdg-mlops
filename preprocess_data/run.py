@@ -20,58 +20,53 @@ logger.setLevel(logging.INFO)
 
 def load_data(
     artifact_name: str,
-    use_local: bool,
     run: Run,
     local_savepath: Optional[Path] = Path("./artifacts"),
 ) -> Path:
     # import artifact from wandb
-    if not use_local:
-        logger.info(
-            f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
-        )
-        artifact = run.use_artifact(artifact_name, type="raw_data")
-        local_savepath = artifact.download(local_savepath)
+    logger.info(
+        f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
+    )
+    artifact = run.use_artifact(artifact_name, type="raw_data")
+    local_savepath = artifact.download(local_savepath)
 
     return local_savepath
 
 
 def main(args: argparse.Namespace) -> None:
-    logger.info(args.persist_artifacts)
-    # run = wandb.init(
-    #     job_type="preprocess_data",
-    #     project="sdg-onu",
-    #     tags=["dev", "data", "preprocess"],
-    # )
+    run = wandb.init(
+        job_type="preprocess_data",
+        project="sdg-onu",
+        tags=["dev", "data", "preprocess"],
+    )
 
-    # with tempfile.TemporaryDirectory() as tmp_dir:
-    #     # retrieving the data from weights and bias
-    #     titles_path = load_data(
-    #         run=run, artifact_name=args.titles_tag, use_local=args.persist_artifacts
-    #     )
-    #     authors_path = load_data(
-    #         run=run, artifact_name=args.authors_tag, use_local=args.persist_artifacts
-    #     )
-    #     affiliations_path = load_data(
-    #         run=run,
-    #         artifact_name=args.affiliations_tag,
-    #         use_local=args.persist_artifacts,
-    #     )
-    #     dois_path = load_data(
-    #         run=run, artifact_name=args.dois_tag, use_local=args.persist_artifacts
-    #     )
-    #     keywords_path = load_data(
-    #         run=run, artifact_name=args.keywords_tag, use_local=args.persist_artifacts
-    #     )
-    #     abstracts_path = load_data(
-    #         run=run, artifact_name=args.abstracts_tag, use_local=args.persist_artifacts
-    #     )
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # retrieving the data from weights and bias
+        titles_path = load_data(
+            run=run, artifact_name=args.titles_tag, local_savepath=Path(tmp_dir)
+        )
+        authors_path = load_data(
+            run=run, artifact_name=args.authors_tag, local_savepath=Path(tmp_dir)
+        )
+        affiliations_path = load_data(
+            run=run, artifact_name=args.affiliations_tag, local_savepath=Path(tmp_dir)
+        )
+        dois_path = load_data(
+            run=run, artifact_name=args.dois_tag, local_savepath=Path(tmp_dir)
+        )
+        keywords_path = load_data(
+            run=run, artifact_name=args.keywords_tag, local_savepath=Path(tmp_dir)
+        )
+        abstracts_path = load_data(
+            run=run, artifact_name=args.abstracts_tag, local_savepath=Path(tmp_dir)
+        )
 
-    #     logging.info(titles_path)
-    #     logging.info(authors_path)
-    #     logging.info(affiliations_path)
-    #     logging.info(dois_path)
-    #     logging.info(keywords_path)
-    #     logging.info(abstracts_path)
+        logging.info(titles_path)
+        logging.info(authors_path)
+        logging.info(affiliations_path)
+        logging.info(dois_path)
+        logging.info(keywords_path)
+        logging.info(abstracts_path)
 
 
 if __name__ == "__main__":
@@ -112,13 +107,6 @@ if __name__ == "__main__":
         help="Path on W&B to the abstracts artifact",
         required=True,
     )
-    parser.add_argument(
-        "--persist_artifacts",
-        type=str,
-        help="Flag that indicates if the downloaded W&B objects should be or not be stored locally",
-        required=False,
-    )
-
     args = parser.parse_args()
 
     main(args)

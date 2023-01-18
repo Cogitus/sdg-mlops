@@ -28,17 +28,10 @@ entry_points:
         description: >
           Fully-qualified name of the W&b value of the abstracts' artifact previously downloaded
         type: str
-      persist_artifacts:
-        description: >
-          If present, tells the code to save locally the artifacts on a '.artifact/' folder
-          after the execution of the main data-processing pipeline 
-        type: str
-        default: false
     command: >-
       python3 run.py --titles_tag {titles} \
                     --authors_tag {authors} \
                     --affiliations_tag {affiliations} \
                     --dois_tag {dois} \
                     --keywords_tag {keywords} \
-                    --abstracts_tag {abstracts} \
-                    --persist_artifacts {persist_artifacts}
+                    --abstracts_tag {abstracts}

@@ -44,7 +44,7 @@ def run(configuration: DictConfig) -> None:
     # passed to decide which ones will run.
 
     # if 'download_data' in STEPS:
-    #     mlflow.run(
+    #     mlflow.projects.run(
     #         uri=os.path.join(ROOT_PATH, 'download_data'),
     #         entry_point='main',
     #         parameters={
@@ -53,7 +53,7 @@ def run(configuration: DictConfig) -> None:
     #     )
 
     if "preprocess_data" in STEPS:
-        mlflow.run(
+        mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "preprocess_data"),
             entry_point="main",
             parameters={
@@ -67,7 +67,7 @@ def run(configuration: DictConfig) -> None:
         )
 
     # if 'split_data' in STEPS:
-    #     mlflow.run(
+    #     mlflow.projects.run(
     #         uri=os.path.join(ROOT_PATH, 'split_data'),
     #         entry_point='main',
     #         parameters={
@@ -76,7 +76,7 @@ def run(configuration: DictConfig) -> None:
     #     )
 
     # if 'train' in STEPS:
-    #     mlflow.run(
+    #     mlflow.projects.run(
     #         uri=os.path.join(ROOT_PATH, 'train'),
     #         entry_point='main',
     #         parameters={
@@ -85,7 +85,7 @@ def run(configuration: DictConfig) -> None:
     #     )
 
     # if 'evaluate_model' in STEPS:
-    #     mlflow.run(
+    #     mlflow.projects.run(
     #         uri=os.path.join(ROOT_PATH, 'evaluate_model'),
     #         entry_point='main',
     #         parameters={
