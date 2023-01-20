@@ -4,10 +4,34 @@ conda_env: conda.yml
 entry_points:
   main:
     parameters:
-      parametro_teste:   
-        description: Description for the artifact
+      titles:
+        description: >
+          Fully-qualified name of the W&b value of the titles' artifact previously downloaded
         type: str
-    command: |
-      #  downloads the releases of models for the spaCy NLP library and executes the code
-      python -m spacy download en_core_web_sm
-      python run.py 
+      authors:
+        description: >
+          Fully-qualified name of the W&b value of the authors' artifact previously downloaded
+        type: str
+      affiliations:
+        description: >
+          Fully-qualified name of the W&b value of the affiliations' artifact previously downloaded
+        type: str
+      dois:
+        description: >
+          Fully-qualified name of the W&b value of the dois' artifact previously downloaded
+        type: str
+      keywords:
+        description: >
+          Fully-qualified name of the W&b value of the keywords' artifact previously downloaded
+        type: str
+      abstracts:
+        description: >
+          Fully-qualified name of the W&b value of the abstracts' artifact previously downloaded
+        type: str
+    command: >-
+      python3 run.py --titles_tag {titles} \
+                    --authors_tag {authors} \
+                    --affiliations_tag {affiliations} \
+                    --dois_tag {dois} \
+                    --keywords_tag {keywords} \
+                    --abstracts_tag {abstracts}

@@ -9,7 +9,8 @@ from typing import Any, Optional
 import requests
 import wandb
 from bs4 import BeautifulSoup
-from progressbar import ETA, Bar, Percentage, ProgressBar, SimpleProgress, Timer
+from progressbar import (ETA, Bar, Percentage, ProgressBar, SimpleProgress,
+                         Timer)
 from urllib3.exceptions import InsecureRequestWarning
 
 logger = logging.getLogger(__name__)
@@ -137,6 +138,7 @@ def save_data(
     data: Any,
     project_name: str,
     filename: str,
+    tags_array: list[str],
     filepath: Optional[str] = os.getcwd(),
     remote: Optional[bool] = False,
 ) -> None:
@@ -151,8 +153,8 @@ def save_data(
 
             with wandb.init(
                 job_type="download_data",
-                project="sdg-onu",
-                tags=["dev", "data", "download"],
+                project=project_name,
+                tags=tags_array,
             ) as run:
                 logger.info(f"Creating artifact for {filename} at {TMP_DIR}")
 
@@ -210,7 +212,12 @@ def main() -> None:
 
     get_data("https://www.sba.org.br/open_journal_systems/index.php/cba")
 
-    wandb_save = partial(save_data, project_name="sdg-onu", remote=True)
+    wandb_save = partial(
+        save_data,
+        project_name="sdg-onu",
+        tags_array=["dev", "data", "download"],
+        remote=True,
+    )
 
     wandb_save(data=titles, filename="titles.json")
     wandb_save(data=authors, filename="authors.json")
