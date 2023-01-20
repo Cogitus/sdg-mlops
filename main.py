@@ -43,13 +43,11 @@ def run(configuration: DictConfig) -> None:
     # OBS: from here and on, all the steps are listed. Its up to the arguments
     # passed to decide which ones will run.
 
-    # if 'download_data' in STEPS:
+    # if "download_data" in STEPS:
     #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, 'download_data'),
-    #         entry_point='main',
-    #         parameters={
-    #             'parametro_teste': 'teste'
-    #         }
+    #         uri=os.path.join(ROOT_PATH, "download_data"),
+    #         entry_point="main",
+    #         parameters={"parametro_teste": "teste"},
     #     )
 
     if "preprocess_data" in STEPS:
