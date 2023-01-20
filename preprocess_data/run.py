@@ -1,17 +1,14 @@
 import argparse
-import json
 import logging
 import tempfile
-import time
+from functools import partial
 from pathlib import Path
-from typing import Any, Optional
 
 import wandb
 from googletrans import Translator
-from progressbar import ETA, Bar, Percentage, ProgressBar, SimpleProgress, Timer
-
-# for the typehint of the runs
-from wandb.sdk.wandb_run import Run
+from progressbar import ETA, Bar, Percentage, SimpleProgress, Timer
+from utils.io import download_wandb_data, load_data, save_data
+from utils.preprocessing import detect_langs, translate_text
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
@@ -19,45 +16,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-def download_wandb_data(
-    artifact_name: str,
-    run: Run,
-    local_savepath: Optional[Path] = Path("./artifacts"),
-) -> Path:
-    # import artifact from wandb
-    logger.info(
-        f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
-    )
-    artifact = run.use_artifact(artifact_name, type="raw_data")
-    local_savepath = artifact.download(local_savepath)
-
-    return local_savepath
-
-
-def load_data(filepath: Path) -> Any:
-    with open(filepath, "r") as file:
-        return json.load(file)
-
-
-def detect_langs(translator: Translator, text2convert: list, widgets: list) -> list:
-    pbar = ProgressBar(
-        maxval=len(text2convert), widgets=widgets, redirect_stdout=True
-    ).start()
-
-    detected_langs = []
-    for i, text in enumerate(text2convert):
-        detected_langs.append(translator.detect(text))
-        time.sleep(0.5)
-        pbar.update(i)
-    pbar.finish()
-
-    return [lang.lang for lang in detected_langs]
-
-
-# def translate_data(translator: Translator, data_arr: list, langs: list) -> list:
-#     ...
 
 
 def main(args: argparse.Namespace) -> None:
@@ -86,36 +44,46 @@ def main(args: argparse.Namespace) -> None:
         titles_path = download_wandb_data(
             run=run, artifact_name=args.titles_tag, local_savepath=Path(tmp_dir)
         )
-        authors_path = download_wandb_data(
-            run=run, artifact_name=args.authors_tag, local_savepath=Path(tmp_dir)
-        )
-        affiliations_path = download_wandb_data(
-            run=run, artifact_name=args.affiliations_tag, local_savepath=Path(tmp_dir)
-        )
-        dois_path = download_wandb_data(
-            run=run, artifact_name=args.dois_tag, local_savepath=Path(tmp_dir)
-        )
         keywords_path = download_wandb_data(
             run=run, artifact_name=args.keywords_tag, local_savepath=Path(tmp_dir)
-        )
-        abstracts_path = download_wandb_data(
-            run=run, artifact_name=args.abstracts_tag, local_savepath=Path(tmp_dir)
         )
 
         # this is the proper data at its proper variables
         titles = load_data(Path(tmp_dir, "titles.json"))
-        authors = load_data(Path(tmp_dir, "authors.json"))
-        affiliations = load_data(Path(tmp_dir, "affiliations.json"))
-        dois = load_data(Path(tmp_dir, "dois.json"))
         keywords = load_data(Path(tmp_dir, "keywords.json"))
-        abstracts = load_data(Path(tmp_dir, "abstracts.json"))
 
         # here we create the reference-language array
         langs = detect_langs(
             translator=translator, text2convert=titles, widgets=PBAR_WIDGETS
         )
 
-        logger.info(f"type of langs unit: {type(langs[0])}")
+        # differentiating between the two types of translations
+        translate_titles = partial(
+            translate_text, type_input="titles", widgets=PBAR_WIDGETS
+        )
+        translate_keywords = partial(
+            translate_text, type_input="keywords", widgets=PBAR_WIDGETS
+        )
+        # the import to W&B is made by this
+        wandb_save = partial(
+            save_data,
+            project_name="sdg-onu",
+            run=run,
+            tags_array=["dev", "data", "preprocess_data"],
+            remote=True,
+        )
+
+        titles_en = translate_titles(
+            translator=translator, text_arr=titles, langs=langs
+        )
+        wandb_save(data=titles_en, filename="titles_en.json")
+
+        keywords_en = translate_keywords(
+            translator=translator, text_arr=keywords, langs=langs
+        )
+        wandb_save(data=keywords_en, filename="keywords_en.json")
+
+    run.finish()
 
 
 if __name__ == "__main__":
