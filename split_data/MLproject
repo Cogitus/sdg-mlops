@@ -1,0 +1,25 @@
+name: split_data
+conda_env: conda.yml
+
+entry_points:
+  # this entry point is only needed for the first time when it runs
+  install_language_models:
+    command: >-
+      python -m spacy download en_core_web_lg
+  
+  tokenize_data:
+    # parameters:
+    #   parametro_teste:
+    #     description: Description for the artifact
+    #     type: str
+    command: >-
+      python3 tokenization.py
+  
+
+  split_and_upload:
+    parameters:
+      parametro_teste:
+        description: Description for the artifact
+        type: str
+    command: >-
+      python3 splitting.py

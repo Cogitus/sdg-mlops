@@ -50,28 +50,25 @@ def run(configuration: DictConfig) -> None:
     #         parameters={"parametro_teste": "teste"},
     #     )
 
-    if "preprocess_data" in STEPS:
-        mlflow.projects.run(
-            uri=os.path.join(ROOT_PATH, "preprocess_data"),
-            entry_point="main",
-            parameters={
-                "titles": configuration["data"]["wandb"]["tag"]["titles"],
-                "authors": configuration["data"]["wandb"]["tag"]["authors"],
-                "affiliations": configuration["data"]["wandb"]["tag"]["affiliations"],
-                "dois": configuration["data"]["wandb"]["tag"]["dois"],
-                "keywords": configuration["data"]["wandb"]["tag"]["keywords"],
-                "abstracts": configuration["data"]["wandb"]["tag"]["abstracts"],
-            },
-        )
-
-    # if 'split_data' in STEPS:
+    # if "preprocess_data" in STEPS:
     #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, 'split_data'),
-    #         entry_point='main',
+    #         uri=os.path.join(ROOT_PATH, "preprocess_data"),
+    #         entry_point="main",
     #         parameters={
-
-    #         }
+    #             "titles": configuration["data"]["wandb"]["tag"]["titles"],
+    #             "authors": configuration["data"]["wandb"]["tag"]["authors"],
+    #             "affiliations": configuration["data"]["wandb"]["tag"]["affiliations"],
+    #             "dois": configuration["data"]["wandb"]["tag"]["dois"],
+    #             "keywords": configuration["data"]["wandb"]["tag"]["keywords"],
+    #             "abstracts": configuration["data"]["wandb"]["tag"]["abstracts"],
+    #         },
     #     )
+
+    if "split_data" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "split_data"),
+            entry_point="tokenize_data",
+        )
 
     # if 'train' in STEPS:
     #     mlflow.projects.run(
