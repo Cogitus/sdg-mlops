@@ -3,9 +3,9 @@ conda_env: conda.yml
 
 entry_points:
   # this entry point is only needed for the first time when it runs
-  install_language_models:
+  download_language_models:
     command: >-
-      python -m spacy download en_core_web_lg
+      python3 download_spacy_model.py
   
   tokenize_data:
     # parameters:

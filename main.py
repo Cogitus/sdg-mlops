@@ -67,8 +67,18 @@ def run(configuration: DictConfig) -> None:
     if "split_data" in STEPS:
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "split_data"),
+            entry_point="download_language_models",
+        )
+
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "split_data"),
             entry_point="tokenize_data",
         )
+
+        # mlflow.projects.run(
+        #     uri=os.path.join(ROOT_PATH, "split_data"),
+        #     entry_point="split_and_upload",
+        # )
 
     # if 'train' in STEPS:
     #     mlflow.projects.run(
