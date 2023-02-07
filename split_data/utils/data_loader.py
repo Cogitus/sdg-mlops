@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from glob import glob
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MultiLabelBinarizer
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
@@ -18,7 +20,7 @@ class SDGloader(ABC):
 
     def __init__(self) -> None:
         self._is_balanced = False
-        self._datasets = []  # will store all 16 SDG dataframe/datasets
+        self._datasets = None  # will store all 16 SDG dataframe/datasets
 
     # a "wrapper" to make it work only after the data processing
     def import_data(self, data_path: Path) -> None:
@@ -29,8 +31,26 @@ class SDGloader(ABC):
 
         # w&b importing goes here
 
-    def balance_data(self, data_path: Path, inplace: bool) -> Path:
-        pass
+    def _binarize_data(self, datasets: pd.DataFrame) -> None:
+        mlb = MultiLabelBinarizer()
+
+        for i, label_dataset in enumerate(datasets):
+            targets = mlb.fit_transform(
+                label_dataset["Sustainable Development Goals (2021)"]
+                .str.replace(" ", "")
+                .str.split("|")
+            )
+
+            targets_dataframe = pd.DataFrame(
+                targets, columns=mlb.classes_, dtype=np.float32
+            )
+
+            # the concatenation is made horizontally along the x-axis (columns)
+            datasets[i] = pd.concat([datasets[i], targets_dataframe], axis=1)
+            # remove the intermediary column
+            datasets[i] = datasets[i].drop(
+                columns=["Sustainable Development Goals (2021)"]
+            )
 
     def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame:
         if not self._is_balanced:
@@ -39,6 +59,9 @@ class SDGloader(ABC):
             raise RuntimeError(
                 f"{self.__class__.__name__} the removal of duplicates was already done"
             )
+
+    def balance_data(self, data_path: Path, inplace: bool) -> Path:
+        pass
 
     # the methods that do the proper loading and importing of the data
     @abstractmethod
@@ -65,6 +88,7 @@ class LocalSDGLoader(SDGloader):
         self, data_location: Path | list[str], persist_data: bool = False
     ) -> Path | list[pd.DataFrame]:
         logger.info(f"loading sdg files from {data_location}")
+
         files = glob(str(data_location) + "/*.csv")
         files = sorted(files)
 
@@ -72,12 +96,19 @@ class LocalSDGLoader(SDGloader):
 
         datasets = []
         for file in files:
-            logger.info(f"\t\t{file}")
+            logger.info(f"\t{file}")
             datasets.append(pd.read_csv(file, sep="\t"))
 
+        # label encoding with MultiLabelBinarizer()
+        self._binarize_data(datasets)
+
+        # the concatenation is made vertically, along the y-axis (rows)
+        data = pd.concat(datasets, ignore_index=True)
+        data = data.rename(columns={"Title": "text"})
+
         if persist_data is False:
-            self._datasets = datasets
-            return datasets
+            self._datasets = data
+            return data
 
 
 class WandbSDGLoader(SDGloader):
@@ -102,6 +133,6 @@ class GithubSDGLoader(SDGloader):
 
 if __name__ == "__main__":
     data_loader = LocalSDGLoader()
-    arquivos = data_loader.load_data(
-        data_location=Path("/home/alsinaariel/Downloads/SDGs-20230122T202630Z-001/SDGs")
-    )
+    data = data_loader.load_data(data_location=Path("/home/alsinaariel/Downloads/SDGs"))
+
+    data.to_csv("APAGAR.csv")
