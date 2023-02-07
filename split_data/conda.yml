@@ -4,10 +4,14 @@ channels:
   - defaults
 dependencies:
   - pip
-  - python=3.9
+  - python=3.10
   - pip:
       - beautifulsoup4==4.6.3
       - hydra-core==1.3.0
       - nltk==3.8.1
+      - numpy
+      - pandas
+      - scikit-learn
       - spacy
+      - tensorflow
       - wandb
