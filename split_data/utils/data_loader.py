@@ -46,19 +46,52 @@ class SDGloader(ABC):
             )
 
             # the concatenation is made horizontally along the x-axis (columns)
-            datasets[i] = pd.concat([datasets[i], targets_dataframe], axis=1)
+            datasets[i] = pd.concat([datasets[i], targets_dataframe], axis="columns")
             # remove the intermediary column
             datasets[i] = datasets[i].drop(
                 columns=["Sustainable Development Goals (2021)"]
             )
 
-    def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame:
-        if not self._is_balanced:
-            ...
-        else:
+    def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame | None:
+        if self._is_balanced:
             raise RuntimeError(
                 f"{self.__class__.__name__} the removal of duplicates was already done"
             )
+        else:
+            # remove duplicate data
+            dataset = dataset.drop_duplicates()
+
+            # perform union set on labels for duplicated text entries
+            # but different target sets
+            text_data = dataset[["text"]].copy()
+            SDG_COLUMNS = [col for col in dataset.columns if col.startswith("SDG")]
+
+            title_counts = text_data["text"].value_counts()
+            duplicated_titles = title_counts[title_counts > 1].index.tolist()
+
+            cleaned_title_rows = []
+            for title in duplicated_titles:
+                sdg_column_data = dataset[SDG_COLUMNS].loc[dataset["text"] == title, :]
+                # this binarizes the presence of the SDGs (columns) for this iteration of `title`
+                sdg_binarization = sdg_column_data.sum(axis="index") > 0
+                sdg_binarization = sdg_binarization.astype(int).tolist()
+
+                # recreates a dataframe line as a list()
+                agg_data = [title]
+                agg_data.extend(sdg_binarization)
+
+                cleaned_title_rows.append(agg_data)
+
+            deduplicated_records = pd.DataFrame(
+                cleaned_title_rows, columns=["text"] + SDG_COLUMNS
+            )
+
+            deduplicated_dataset = dataset.loc[~dataset["text"].isin(duplicated_titles)]
+            deduplicated_dataset = pd.concat(
+                [deduplicated_dataset, deduplicated_records], ignore_index=True
+            )
+
+            return deduplicated_dataset
 
     def balance_data(self, data_path: Path, inplace: bool) -> Path:
         pass
@@ -103,11 +136,14 @@ class LocalSDGLoader(SDGloader):
         self._binarize_data(datasets)
 
         # the concatenation is made vertically, along the y-axis (rows)
-        data = pd.concat(datasets, ignore_index=True)
+        data = pd.concat(datasets, ignore_index=True, axis="index")
         data = data.rename(columns={"Title": "text"})
 
         if persist_data is False:
+            data = self.remove_duplicates(data)
+
             self._datasets = data
+
             return data
 
 
@@ -135,4 +171,4 @@ if __name__ == "__main__":
     data_loader = LocalSDGLoader()
     data = data_loader.load_data(data_location=Path("/home/alsinaariel/Downloads/SDGs"))
 
-    data.to_csv("APAGAR.csv")
+    # data.to_csv("APAGAR.csv")
