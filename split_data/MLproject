@@ -7,6 +7,43 @@ entry_points:
     command: >-
       python3 download_spacy_model.py
   
+  dataset_balancing:
+    parameters:
+      quantile:
+        description: The quantile of the counts of labels at which to balance the dataset.
+        type: float
+        default: 0.5
+      random_state:
+        description: The random seed used to sample the pd.DataFrame().
+        type: float
+        default: 42
+    command: >-
+      python3 data_balancing.py --quantile {quantile} \
+                                --random_state {random_state} 
+  preprocess_and_split:
+    parameters:
+      train_size_factor:
+        description: Coeficient that rules the proportional size of the training dataset
+        type: float
+        default: 0.9
+      dataset_name:
+        description: Fully-qualified name of the W&b value of the balanced SDG dataset previously downloaded
+        type: str
+        default: cogitus/sdg-onu/balanced_table:latest
+      test_share_size:
+        description: The number that defines the size of the test set (as a percentage of the total)
+        type: float
+        default: 0.2
+      random_state:
+        description: The random seed used to randomize the split of the full dataset.
+        type: float
+        default: 42
+    command: >-
+      python3 splitting.py --train_size_factor {train_size_factor} \
+                          --dataset_name {dataset_name} \
+                          --test_share_size {test_share_size} \
+                          --random_state {random_state}
+
   tokenize_data:
     # parameters:
     #   parametro_teste:
@@ -14,12 +51,3 @@ entry_points:
     #     type: str
     command: >-
       python3 tokenization.py
-  
-
-  split_and_upload:
-    parameters:
-      parametro_teste:
-        description: Description for the artifact
-        type: str
-    command: >-
-      python3 splitting.py
