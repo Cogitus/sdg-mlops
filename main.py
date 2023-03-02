@@ -65,19 +65,42 @@ def run(configuration: DictConfig) -> None:
     #     )
 
     if "split_data" in STEPS:
-        mlflow.projects.run(
-            uri=os.path.join(ROOT_PATH, "split_data"),
-            entry_point="download_language_models",
-        )
+        PIPELINE_PROGRAM = [
+            {"entry_point": "download_language_models", "parameters": {}},
+            {
+                "entry_point": "dataset_balancing",
+                "parameters": {
+                    "quantile": configuration["data"]["balancing"]["quantile"],
+                    "random_state": configuration["data"]["balancing"]["random_state"],
+                },
+            },
+            {
+                "entry_point": "preprocess_and_split",
+                "parameters": {
+                    "train_size_factor": configuration["data"]["splitting"][
+                        "train_size_factor"
+                    ],
+                    "dataset_name": configuration["data"]["wandb"]["tag"][
+                        "balanced_dataset"
+                    ],
+                    "test_share_size": configuration["data"]["splitting"][
+                        "test_share_size"
+                    ],
+                    "random_state": configuration["data"]["splitting"]["random_state"],
+                },
+            },
+        ]
 
-        mlflow.projects.run(
-            uri=os.path.join(ROOT_PATH, "split_data"),
-            entry_point="tokenize_data",
-        )
+        for execution_step in PIPELINE_PROGRAM:
+            mlflow.projects.run(
+                uri=os.path.join(ROOT_PATH, "split_data"),
+                entry_point=execution_step["entry_point"],
+                parameters=execution_step["parameters"],
+            )
 
         # mlflow.projects.run(
         #     uri=os.path.join(ROOT_PATH, "split_data"),
-        #     entry_point="split_and_upload",
+        #     entry_point="tokenize_data",
         # )
 
     # if 'train' in STEPS:
