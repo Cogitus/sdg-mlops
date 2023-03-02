@@ -1,5 +1,14 @@
+import logging
+
 import numpy as np
 import pandas as pd
+
+logging.basicConfig(
+    format="[%(asctime)s][%(levelname)s]: %(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def balance_multilabel_dataset(
@@ -28,6 +37,11 @@ def balance_multilabel_dataset(
     >>> unbalanced_dataset = pd.read_csv("unbalanced_dataset.csv")
     >>> balanced_dataset = balance_multilabel_dataset(unbalanced_dataset)
     """
+    if label_columns is None:
+        raise ValueError("The dataset columns must be specified")
+    logger.info(
+        f"starting balancing for quantile={quantile} and random_state={random_state}"
+    )
     # compute the overall counts of labels in the dataset before multilabel balancing
     sdg_counts = dataset.loc[:, label_columns].sum(axis="index")
 
