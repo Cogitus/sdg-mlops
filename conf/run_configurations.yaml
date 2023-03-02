@@ -18,7 +18,16 @@ data:
       dois: cogitus/sdg-onu/dois.json:latest
       keywords: cogitus/sdg-onu/keywords.json:latest
       abstracts: cogitus/sdg-onu/abstracts.json:latest
+      balanced_dataset: cogitus/sdg-onu/balanced_table:latest
     project: sdg-onu
+  balancing:
+    quantile: 0.5
+    random_state: 42
+  splitting:
+    train_size_factor: 0.9
+    test_share_size: 0.2
+    random_state: 42
+    path_sdg_dataset: /home/alsinaariel/Downloads/SDGs
 
 defaults:
   - override hydra/job_logging: custom
