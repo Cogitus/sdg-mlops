@@ -52,7 +52,7 @@ class SDGloader(ABC):
                 columns=["Sustainable Development Goals (2021)"]
             )
 
-    def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame | None:
+    def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame:
         if self._is_balanced:
             raise RuntimeError(
                 f"{self.__class__.__name__} the removal of duplicates was already done"
@@ -92,9 +92,6 @@ class SDGloader(ABC):
             )
 
             return deduplicated_dataset
-
-    def balance_data(self, data_path: Path, inplace: bool) -> Path:
-        pass
 
     # the methods that do the proper loading and importing of the data
     @abstractmethod
@@ -141,7 +138,6 @@ class LocalSDGLoader(SDGloader):
 
         if persist_data is False:
             data = self.remove_duplicates(data)
-
             self._datasets = data
 
             return data
