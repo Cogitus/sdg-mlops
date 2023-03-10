@@ -44,10 +44,36 @@ entry_points:
                           --test_share_size {test_share_size} \
                           --random_state {random_state}
 
-  tokenize_data:
-    # parameters:
-    #   parametro_teste:
-    #     description: Description for the artifact
-    #     type: str
+  advanced_preprocessing:
+    parameters:
+      X_train:
+        description: Fully-qualified name of the W&B artifact-path for X_train
+        type: str
+        default: cogitus/sdg-onu/X_train:latest
+      y_train:
+        description: Fully-qualified name of the W&B artifact-path for y_train
+        type: str
+        default: cogitus/sdg-onu/y_train:latest
+      X_valid:
+        description: Fully-qualified name of the W&B artifact-path for X_valid
+        type: str
+        default: cogitus/sdg-onu/X_valid:latest
+      y_valid:
+        description: Fully-qualified name of the W&B artifact-path for y_valid
+        type: str
+        default: cogitus/sdg-onu/y_valid:latest
+      X_test:
+        description: Fully-qualified name of the W&B artifact-path for X_test
+        type: str
+        default: cogitus/sdg-onu/X_test:latest
+      y_test:
+        description: Fully-qualified name of the W&B artifact-path for y_test
+        type: str
+        default: cogitus/sdg-onu/y_test:latest
     command: >-
-      python3 tokenization.py
+      python3 advanced_preprocessing.py --X_train {X_train} \
+                                        --y_train {y_train} \
+                                        --X_valid {X_valid} \
+                                        --y_valid {y_valid} \
+                                        --X_test {X_test} \
+                                        --y_test {y_test}
