@@ -1,7 +1,11 @@
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+# for the typehint of the runs
+from wandb.sdk.wandb_run import Run
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
@@ -91,3 +95,20 @@ def balance_multilabel_dataset(
         samples_to_add = quantile_label_count - balanced_label_count
 
     return balanced_dataset
+
+
+def download_wandb_data(
+    artifact_name: str,
+    run: Run,
+    local_savepath: Path = Path("./artifacts"),
+    artifact_type: str = "dataset",
+) -> Path:
+    logger.info(
+        f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
+    )
+
+    # import artifact from wandb
+    artifact = run.use_artifact(artifact_name, type=artifact_type)
+    local_savepath = artifact.download(local_savepath)
+
+    return local_savepath
