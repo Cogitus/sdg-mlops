@@ -43,26 +43,26 @@ def run(configuration: DictConfig) -> None:
     # OBS: from here and on, all the steps are listed. Its up to the arguments
     # passed to decide which ones will run.
 
-    # if "download_data" in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, "download_data"),
-    #         entry_point="main",
-    #         parameters={"parametro_teste": "teste"},
-    #     )
+    if "download_data" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "download_data"),
+            entry_point="main",
+            parameters={"parametro_teste": "teste"},
+        )
 
-    # if "preprocess_data" in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, "preprocess_data"),
-    #         entry_point="main",
-    #         parameters={
-    #             "titles": configuration["data"]["wandb"]["tag"]["titles"],
-    #             "authors": configuration["data"]["wandb"]["tag"]["authors"],
-    #             "affiliations": configuration["data"]["wandb"]["tag"]["affiliations"],
-    #             "dois": configuration["data"]["wandb"]["tag"]["dois"],
-    #             "keywords": configuration["data"]["wandb"]["tag"]["keywords"],
-    #             "abstracts": configuration["data"]["wandb"]["tag"]["abstracts"],
-    #         },
-    #     )
+    if "preprocess_data" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "preprocess_data"),
+            entry_point="main",
+            parameters={
+                "titles": configuration["data"]["wandb"]["tag"]["titles"],
+                "authors": configuration["data"]["wandb"]["tag"]["authors"],
+                "affiliations": configuration["data"]["wandb"]["tag"]["affiliations"],
+                "dois": configuration["data"]["wandb"]["tag"]["dois"],
+                "keywords": configuration["data"]["wandb"]["tag"]["keywords"],
+                "abstracts": configuration["data"]["wandb"]["tag"]["abstracts"],
+            },
+        )
 
     if "split_data" in STEPS:
         PIPELINE_PROGRAM = [
@@ -89,6 +89,17 @@ def run(configuration: DictConfig) -> None:
                     "random_state": configuration["data"]["splitting"]["random_state"],
                 },
             },
+            {
+                "entry_point": "advanced_preprocessing",
+                "parameters": {
+                    "X_train": configuration["data"]["wandb"]["tag"]["X_train"],
+                    "y_train": configuration["data"]["wandb"]["tag"]["y_train"],
+                    "X_valid": configuration["data"]["wandb"]["tag"]["X_valid"],
+                    "y_valid": configuration["data"]["wandb"]["tag"]["y_valid"],
+                    "X_test": configuration["data"]["wandb"]["tag"]["X_test"],
+                    "y_test": configuration["data"]["wandb"]["tag"]["y_test"],
+                },
+            },
         ]
 
         for execution_step in PIPELINE_PROGRAM:
@@ -97,11 +108,6 @@ def run(configuration: DictConfig) -> None:
                 entry_point=execution_step["entry_point"],
                 parameters=execution_step["parameters"],
             )
-
-        # mlflow.projects.run(
-        #     uri=os.path.join(ROOT_PATH, "split_data"),
-        #     entry_point="tokenize_data",
-        # )
 
     # if 'train' in STEPS:
     #     mlflow.projects.run(
