@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import nltk
 import wandb
 from utils.data_loader import LocalSDGLoader
 from utils.operations import balance_multilabel_dataset
@@ -22,13 +21,6 @@ def main(args: argparse.Namespace) -> None:
     data_loader = LocalSDGLoader()
 
     with TemporaryDirectory() as tmp_dir:
-        logger.info("starting download of nltk_data")
-        # Set the location of the NLTK data directory to a custom folder
-        nltk_data_folder = Path(tmp_dir) / "nltk_data"
-
-        nltk.download("punkt", download_dir=nltk_data_folder)
-        nltk.download("stopwords", download_dir=nltk_data_folder)
-
         data = data_loader.load_data(
             data_location=Path("/home/alsinaariel/Downloads/SDGs")
         )
