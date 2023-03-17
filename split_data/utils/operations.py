@@ -102,7 +102,7 @@ def download_wandb_data(
     run: Run,
     local_savepath: Path = Path("./artifacts"),
     artifact_type: str = "dataset",
-) -> Path:
+) -> pd.DataFrame:
     logger.info(
         f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
     )
@@ -111,4 +111,7 @@ def download_wandb_data(
     artifact = run.use_artifact(artifact_name, type=artifact_type)
     local_savepath = artifact.download(local_savepath)
 
-    return local_savepath
+    # get the donwloaded file name by its name at W&B (such as y_train:v1)
+    artifact_name = lambda x: x.split(":")[0] + ".csv"
+
+    return pd.read_csv(Path(local_savepath) / artifact_name(artifact.name), index_col=0)

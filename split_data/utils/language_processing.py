@@ -8,6 +8,7 @@ from unicodedata import combining, normalize
 import nltk
 import numpy as np
 import spacy
+import tensorflow as tf
 import tqdm
 from nltk.stem import SnowballStemmer
 from nltk.tokenize import word_tokenize
@@ -106,3 +107,7 @@ def advanced_preprocess(
     Z = Z[non_empty_sentences]
 
     return Z, y
+
+
+def create_dataset(X: Iterable[str], y: Iterable[Iterable[float]]):
+    return tf.data.Dataset.from_tensor_slices((tf.constant(X), tf.constant(y)))

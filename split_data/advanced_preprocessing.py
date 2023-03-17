@@ -3,7 +3,9 @@ import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import tensorflow as tf
 import wandb
+from utils.language_processing import advanced_preprocess
 from utils.operations import download_wandb_data
 
 logging.basicConfig(
@@ -14,7 +16,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-# @hydra.main()
 def main(args: argparse.Namespace) -> None:
     run = wandb.init(
         job_type="training_dataset_splitting",
@@ -23,21 +24,17 @@ def main(args: argparse.Namespace) -> None:
     )
 
     with TemporaryDirectory() as tmp_dir:
+        X_train = download_wandb_data(args.X_train, run=run, local_savepath=tmp_dir)
+        y_train = download_wandb_data(args.y_train, run=run, local_savepath=tmp_dir)
+        X_valid = download_wandb_data(args.X_valid, run=run, local_savepath=tmp_dir)
+        y_valid = download_wandb_data(args.y_valid, run=run, local_savepath=tmp_dir)
+        X_test = download_wandb_data(args.X_test, run=run, local_savepath=tmp_dir)
+        y_test = download_wandb_data(args.y_test, run=run, local_savepath=tmp_dir)
 
-        X_train_path = download_wandb_data(
-            args.X_train, run=run, local_savepath=tmp_dir
-        )
-        y_train_path = download_wandb_data(
-            args.y_train, run=run, local_savepath=tmp_dir
-        )
-        X_valid_path = download_wandb_data(
-            args.X_valid, run=run, local_savepath=tmp_dir
-        )
-        y_valid_path = download_wandb_data(
-            args.y_valid, run=run, local_savepath=tmp_dir
-        )
-        X_test_path = download_wandb_data(args.X_test, run=run, local_savepath=tmp_dir)
-        y_test_path = download_wandb_data(args.y_test, run=run, local_savepath=tmp_dir)
+        # doing the proper preprocess here
+        X_train, y_train = advanced_preprocess(X_train, y_train)
+        X_valid, y_valid = advanced_preprocess(X_valid, y_valid)
+        X_test, y_test = advanced_preprocess(X_test, y_test)
 
     run.finish()
 
