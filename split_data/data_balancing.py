@@ -16,47 +16,42 @@ logger.setLevel(logging.INFO)
 
 
 def main(args: argparse.Namespace) -> None:
-    # current_dir = Path.cwd()
-
     data_loader = LocalSDGLoader()
+    data_loader.load_data(data_location=args.path_sdg_dataset)
 
-    with TemporaryDirectory() as tmp_dir:
-        data = data_loader.load_data(
-            data_location=Path("/home/alsinaariel/Downloads/SDGs")
+    data = data_loader.datasets
+
+    # preprocess the data by balancing it with a quantile of 0.5
+    label_columns = [col for col in data.columns if col.startswith("SDG")]
+    balanced_data = balance_multilabel_dataset(
+        dataset=data,
+        label_columns=label_columns,
+        quantile=args.quantile,
+        random_state=args.random_state,
+    )
+
+    with wandb.init(
+        job_type="balancing_data",
+        project="sdg-onu",
+        tags=["quantile", "balancing", "multilabel", "preprocessing", "splitting"],
+    ) as run:
+        balanced_table = wandb.Artifact(
+            name="balanced_table",
+            type="dataset",
+            description="The balanced dataset after the preprocessing of removel of duplicate lines and label balancing",
+            metadata={"quantile": args.quantile, "random_state": args.random_state},
         )
 
-        # preprocess the data by balancing it with a quantile of 0.5
-        label_columns = [col for col in data.columns if col.startswith("SDG")]
-        balanced_data = balance_multilabel_dataset(
-            dataset=data,
-            label_columns=label_columns,
-            quantile=args.quantile,
-            random_state=args.random_state,
-        )
+        tmp_dir = TemporaryDirectory()
 
-        with wandb.init(
-            job_type="balancing_data",
-            project="sdg-onu",
-            tags=["quantile", "balancing", "multilabel", "preprocessing", "splitting"],
-        ) as run:
-            balanced_table = wandb.Artifact(
-                name="balanced_table",
-                type="dataset",
-                description="The balanced dataset after the preprocessing of removel of duplicate lines and label balancing",
-                metadata={"quantile": args.quantile, "random_state": args.random_state},
-            )
+        csv_path = Path(tmp_dir.name) / "balanced_table.csv"
+        balanced_data.to_csv(csv_path, index=False)
 
-            # make the limit of rows higher to comport the dataset
-            wandb.Table.MAX_ARTIFACT_ROWS = 2_000_000
+        balanced_table.add_file(local_path=csv_path)
+        run.log_artifact(balanced_table)
+        balanced_table.wait()
 
-            balanced_table.add(
-                obj=wandb.Table(dataframe=balanced_data), name="balanced_data"
-            )
-
-            logger.info(f"Logging `balanced_data` artifact.")
-
-            run.log_artifact(balanced_table)
-            balanced_table.wait()
+        tmp_dir.cleanup()
 
 
 if __name__ == "__main__":
@@ -76,6 +71,13 @@ if __name__ == "__main__":
         help="The random seed used to sample the dataframe",
         required=True,
     )
+    parser.add_argument(
+        "--path_sdg_dataset",
+        type=Path,
+        help="The random seed used to sample the dataframe",
+        required=True,
+    )
+
     ARGS = parser.parse_args()
 
     main(ARGS)
