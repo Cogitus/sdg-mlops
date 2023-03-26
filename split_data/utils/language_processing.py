@@ -1,17 +1,17 @@
 import logging
 import re
 from collections.abc import Iterable
-from pathlib import Path
-from tempfile import TemporaryDirectory
+from multiprocessing import cpu_count
 from unicodedata import combining, normalize
 
 import nltk
 import numpy as np
 import spacy
 import tensorflow as tf
-import tqdm
+from joblib import Parallel, delayed
 from nltk.stem import SnowballStemmer
 from nltk.tokenize import word_tokenize
+from tqdm import tqdm
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
@@ -22,28 +22,18 @@ logger.setLevel(logging.INFO)
 
 
 def get_stopwords() -> list[str]:
-    stopwords = None
 
-    with TemporaryDirectory() as tmp_dir:
-        logger.info("starting download of nltk_data")
+    nltk_stopwords = nltk.corpus.stopwords.words("english")
+    nltk_stopwords = set(nltk_stopwords)
 
-        # Set the location of the NLTK data directory to a custom folder
-        nltk_data_folder = Path(tmp_dir) / "nltk_data"
+    spacy_en = spacy.load("en_core_web_lg")
+    spacy_stopwords = spacy_en.Defaults.stop_words
 
-        # without this, nltk won't know where to search the stopwords
-        nltk.data.path.append(nltk_data_folder)
-        nltk.download("punkt", download_dir=nltk_data_folder)
-        nltk.download("stopwords", download_dir=nltk_data_folder)
+    # joining both set of stopwords
+    stopwords = spacy_stopwords.union(nltk_stopwords)
+    stopwords = list(stopwords)
 
-        nltk_stopwords = nltk.corpus.stopwords.words("english")
-        nltk_stopwords = set(nltk_stopwords)
-
-        spacy_en = spacy.load("en_core_web_lg")
-        spacy_stopwords = spacy_en.Defaults.stop_words
-
-        # joining both set of stopwords
-        stopwords = spacy_stopwords.union(nltk_stopwords)
-        stopwords = list(stopwords)
+    # tmp_dir.cleanup()
 
     return stopwords
 
@@ -71,29 +61,43 @@ def advanced_preprocess(
         for text in Z
     ]
 
-    # 6) Tokenize text
-    Z = [word_tokenize(text) for text in Z]
+    # 6) Tokenize text (in parallel with joblib, and the backend is with multiprocessing
+    # since with the default one it has problems with the nltk data downloaded
+    # to a custom folder
+    Z = Parallel(n_jobs=-1, backend="multiprocessing")(
+        delayed(word_tokenize)(text) for text in Z
+    )
 
-    # 7) Remove stopwords
+    # 7) Remove stopwords (in parallel with joblib)
     stopwords = get_stopwords()
-    Z = [
-        list((word for word in tokens if ((word not in stopwords) and (len(word) > 1))))
-        for tokens in Z
-    ]
+    clean_tokens_func = lambda tokens: list(
+        (word for word in tokens if ((word not in stopwords) and (len(word) > 1)))
+    )
+    Z = Parallel(n_jobs=-1)(delayed(clean_tokens_func)(tokens) for tokens in Z)
 
-    # 8.1) Lemmatizing
+    # 8.1) Lemmatizing (speeding up it with nlp.pipe as suggested by the spacy documentation)
     if truncation == "lemma":
         # 8.1.1) Concatenate tokens
         Z = [" ".join(tokens) for tokens in Z]
 
-        # 8.1.2) Lemmatize sentences
         nlp = spacy.load("en_core_web_lg")
-        lemmatize = lambda sentence: " ".join([token.lemma_ for token in nlp(sentence)])
-        Z = [lemmatize(text) for text in tqdm(Z)]
-    # 8.2) Stemming
+
+        # if all the cores are being used, there is a high chance of crashing
+        NUM_CORES = cpu_count() - 1
+        Z_lemma = []
+
+        # 8.1.2) Lemmatize sentences
+        for doc in nlp.pipe(Z, batch_size=128, n_process=NUM_CORES):
+            Z_lemma.append(" ".join([tok.lemma_ for tok in doc]))
+        Z = Z_lemma
+    # 8.2) Stemming (in parallel with joblib)
     elif truncation == "stem":
         stemmer = SnowballStemmer("english")
-        Z = [" ".join([stemmer.stem(token) for token in tokens]) for tokens in Z]
+
+        stemming_func = lambda tokens: " ".join(
+            [stemmer.stem(token) for token in tokens]
+        )
+        Z = Parallel(n_jobs=-1)(delayed(stemming_func)(tokens) for tokens in Z)
     # 8.3) Truncation is None
     else:
         Z = [" ".join(tokens) for tokens in Z]
