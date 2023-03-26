@@ -17,9 +17,15 @@ entry_points:
         description: The random seed used to sample the pd.DataFrame().
         type: float
         default: 42
+      path_sdg_dataset:
+        description: Path of the 16 downloaded datasets containing the information
+          about the academic works and their given SDGs.
+        type: path
+        default: /home/alsinaariel/Downloads/SDGs
     command: >-
       python3 data_balancing.py --quantile {quantile} \
-                                --random_state {random_state} 
+                                --random_state {random_state} \
+                                --path_sdg_dataset {path_sdg_dataset}
                                 
   preprocess_and_split:
     parameters:
@@ -71,10 +77,20 @@ entry_points:
         description: Fully-qualified name of the W&B artifact-path for y_test
         type: str
         default: cogitus/sdg-onu/y_test:latest
+      tf_batch_size:
+        description: The size of batch for the dataset created
+        type: int
+        default: 32
+      tf_seed:
+        description: The arbitrary seed used on the shuffle() of the Tensorflow's dataset
+        type: int
+        default: 42
     command: >-
       python3 advanced_preprocessing.py --X_train {X_train} \
                                         --y_train {y_train} \
                                         --X_valid {X_valid} \
                                         --y_valid {y_valid} \
                                         --X_test {X_test} \
-                                        --y_test {y_test}
+                                        --y_test {y_test} \
+                                        --tf_batch_size {tf_batch_size} \
+                                        --tf_seed {tf_seed}

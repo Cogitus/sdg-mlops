@@ -72,6 +72,9 @@ def run(configuration: DictConfig) -> None:
                 "parameters": {
                     "quantile": configuration["data"]["balancing"]["quantile"],
                     "random_state": configuration["data"]["balancing"]["random_state"],
+                    "path_sdg_dataset": configuration["data"]["splitting"][
+                        "path_sdg_dataset"
+                    ],
                 },
             },
             {
@@ -98,6 +101,12 @@ def run(configuration: DictConfig) -> None:
                     "y_valid": configuration["data"]["wandb"]["tag"]["y_valid"],
                     "X_test": configuration["data"]["wandb"]["tag"]["X_test"],
                     "y_test": configuration["data"]["wandb"]["tag"]["y_test"],
+                    "tf_batch_size": configuration["data"]["advanced_preprocessing"][
+                        "tf_batch_size"
+                    ],
+                    "tf_seed": configuration["data"]["advanced_preprocessing"][
+                        "tf_seed"
+                    ],
                 },
             },
         ]

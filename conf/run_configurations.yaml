@@ -34,6 +34,9 @@ data:
     test_share_size: 0.2
     random_state: 42
     path_sdg_dataset: /home/alsinaariel/Downloads/SDGs
+  advanced_preprocessing:
+    tf_batch_size: 32
+    tf_seed: 42
 
 defaults:
   - override hydra/job_logging: custom
