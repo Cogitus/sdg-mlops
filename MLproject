@@ -4,7 +4,7 @@ conda_env: main_environment.yml
 entry_points:
     main:
         parameters:
-            hydra_configurations:
+            overriding_configs:
                 # TODO
                 description: >
                     These are the string-like override methods used by Hydra to 
@@ -12,11 +12,11 @@ entry_points:
                 type: str
                 default: ''
         command:
-            python3 main.py $(echo {hydra_configurations})
+            python3 main.py  $(echo {overriding_configs})
 
     download_data:
         parameters:
-            hydra_configurations:
+            overriding_configs:
                 # TODO
                 description: >
                     These are the string-like override methods used by Hydra to 
@@ -24,7 +24,7 @@ entry_points:
                 type: str
                 default: ''
         command:
-            python3 ./download_data/main.py $(echo {hydra_configurations})  
+            python3 ./download_data/main.py $(echo {overriding_configs})  
 
     preprocess_data:
         parameters:
@@ -35,7 +35,7 @@ entry_points:
             type: str
             default: ''
         command:
-            python3 ./preprocess_data/main.py $(echo {hydra_configurations})
+            python3 ./preprocess_data/main.py $(echo {overriding_configs})
     
     split_data:
         parameters:
@@ -46,7 +46,7 @@ entry_points:
             type: str
             default: ''
         command:
-            python3 ./split_data/main.py $(echo {hydra_configurations})
+            python3 ./split_data/main.py $(echo {overriding_configs})
     
     train:
         parameters:
@@ -57,7 +57,7 @@ entry_points:
             type: str
             default: ''
         command:
-            python3 ./train/main.py $(echo {hydra_configurations})
+            python3 ./train/main.py $(echo {overriding_configs})
     
     evaluate_model:
         parameters:
@@ -68,4 +68,4 @@ entry_points:
             type: str
             default: ''
         command:
-            python3 ./evaluate_model/main.py $(echo {hydra_configurations})
+            python3 ./evaluate_model/main.py $(echo {overriding_configs})

@@ -23,16 +23,16 @@ The full pipeline is run simply by typing the following command on the CLI at th
 ```bash
 $ mlflow run .
 ```
-Nonetheless, you can change the [default settings](config.yaml) of the project thanks to the flexibility of [*Hydra's package*](https://hydra.cc/docs/intro/), that allows one to override [default's configurations](config.yaml) on each separate run call. If that's the case, then, the paramater ```hydra_configurations``` will be receaving a string with the pair ```"configuration=value"``` to change. For example:
+Nonetheless, you can change the [default settings](config.yaml) of the project thanks to the flexibility of [*Hydra's package*](https://hydra.cc/docs/intro/), that allows one to override [default's configurations](config.yaml) on each separate run call. If that's the case, then, the paramater ```overriding_configs``` will be receaving a string with the pair ```"configuration=value"``` to change. For example:
 
 ```bash
-$ mlflow run . -P hydra_configurations="project_name=deploy_model"
+$ mlflow run . -P overriding_configs="project_name=deploy_model"
 ```
 
 Or in the case of multiple overrides:
 
 ```bash
-$ mlflow run . -P hydra_configurations="project_name=deploy_model model.seed=8795"
+$ mlflow run . -P overriding_configs="project_name=deploy_model model.seed=8795"
 ```
 
 ## Running chosen steps
@@ -50,7 +50,7 @@ But if you want, you can choose to run the steps that you want, although they mu
 The syntax at the CLI that you must use to do so is:
 
 ```bash
-mlflow run . -P hydra_configurations="main.steps2execute='download_data,train'"
+mlflow run . -P overriding_configs="main.steps2execute='download_data,train'"
 ```
 
 __OBS__: Note that on that last example, ```model``` is like a dictionary with more than one key inside of it accessible with the ```.``` operator.

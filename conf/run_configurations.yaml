@@ -2,8 +2,8 @@ main:
   project_name: sdg-onu
   experiment_name: development
   steps2execute:
-    - download_data
-    - preprocess_data
+  #   - download_data
+  #   - preprocess_data
     - split_data
     - train
     - evaluate_model
@@ -18,7 +18,25 @@ data:
       dois: cogitus/sdg-onu/dois.json:latest
       keywords: cogitus/sdg-onu/keywords.json:latest
       abstracts: cogitus/sdg-onu/abstracts.json:latest
+      balanced_dataset: cogitus/sdg-onu/balanced_table:latest
+      X_train: cogitus/sdg-onu/X_train:latest
+      y_train: cogitus/sdg-onu/y_train:latest
+      X_valid: cogitus/sdg-onu/X_valid:latest
+      y_valid: cogitus/sdg-onu/y_valid:latest
+      X_test: cogitus/sdg-onu/X_test:latest
+      y_test: cogitus/sdg-onu/y_test:latest
     project: sdg-onu
+  balancing:
+    quantile: 0.5
+    random_state: 42
+  splitting:
+    train_size_factor: 0.9
+    test_share_size: 0.2
+    random_state: 42
+    path_sdg_dataset: /home/alsinaariel/Downloads/SDGs
+  advanced_preprocessing:
+    tf_batch_size: 32
+    tf_seed: 42
 
 defaults:
   - override hydra/job_logging: custom

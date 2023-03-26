@@ -43,12 +43,12 @@ def run(configuration: DictConfig) -> None:
     # OBS: from here and on, all the steps are listed. Its up to the arguments
     # passed to decide which ones will run.
 
-    # if "download_data" in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, "download_data"),
-    #         entry_point="main",
-    #         parameters={"parametro_teste": "teste"},
-    #     )
+    if "download_data" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "download_data"),
+            entry_point="main",
+            parameters={"parametro_teste": "teste"},
+        )
 
     if "preprocess_data" in STEPS:
         mlflow.projects.run(
@@ -64,14 +64,59 @@ def run(configuration: DictConfig) -> None:
             },
         )
 
-    # if 'split_data' in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, 'split_data'),
-    #         entry_point='main',
-    #         parameters={
+    if "split_data" in STEPS:
+        PIPELINE_PROGRAM = [
+            {"entry_point": "download_language_models", "parameters": {}},
+            {
+                "entry_point": "dataset_balancing",
+                "parameters": {
+                    "quantile": configuration["data"]["balancing"]["quantile"],
+                    "random_state": configuration["data"]["balancing"]["random_state"],
+                    "path_sdg_dataset": configuration["data"]["splitting"][
+                        "path_sdg_dataset"
+                    ],
+                },
+            },
+            {
+                "entry_point": "preprocess_and_split",
+                "parameters": {
+                    "train_size_factor": configuration["data"]["splitting"][
+                        "train_size_factor"
+                    ],
+                    "dataset_name": configuration["data"]["wandb"]["tag"][
+                        "balanced_dataset"
+                    ],
+                    "test_share_size": configuration["data"]["splitting"][
+                        "test_share_size"
+                    ],
+                    "random_state": configuration["data"]["splitting"]["random_state"],
+                },
+            },
+            {
+                "entry_point": "advanced_preprocessing",
+                "parameters": {
+                    "X_train": configuration["data"]["wandb"]["tag"]["X_train"],
+                    "y_train": configuration["data"]["wandb"]["tag"]["y_train"],
+                    "X_valid": configuration["data"]["wandb"]["tag"]["X_valid"],
+                    "y_valid": configuration["data"]["wandb"]["tag"]["y_valid"],
+                    "X_test": configuration["data"]["wandb"]["tag"]["X_test"],
+                    "y_test": configuration["data"]["wandb"]["tag"]["y_test"],
+                    "tf_batch_size": configuration["data"]["advanced_preprocessing"][
+                        "tf_batch_size"
+                    ],
+                    "tf_seed": configuration["data"]["advanced_preprocessing"][
+                        "tf_seed"
+                    ],
+                },
+            },
+        ]
 
-    #         }
-    #     )
+        for execution_step in PIPELINE_PROGRAM:
+            mlflow.projects.run(
+                uri=os.path.join(ROOT_PATH, "split_data"),
+                entry_point=execution_step["entry_point"],
+                parameters=execution_step["parameters"],
+            )
 
     # if 'train' in STEPS:
     #     mlflow.projects.run(

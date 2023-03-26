@@ -1,0 +1,19 @@
+name: split_data
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.10
+  - hydra-core=1.3.0
+  - pip:
+      - beautifulsoup4==4.6.3
+      - hydra-core==1.3.0
+      - nltk==3.8.1
+      - hydra-joblib-launcher==1.2.0
+      - numpy
+      - pandas
+      - scikit-learn
+      - spacy
+      - tensorflow
+      - wandb
