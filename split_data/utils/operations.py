@@ -114,4 +114,4 @@ def download_wandb_data(
     # get the donwloaded file name by its name at W&B (such as y_train:v1)
     artifact_name = lambda x: x.split(":")[0] + ".csv"
 
-    return pd.read_csv(Path(local_savepath) / artifact_name(artifact.name), index_col=0)
+    return pd.read_csv(Path(local_savepath) / artifact_name(artifact.name))
