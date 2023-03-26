@@ -102,7 +102,7 @@ class SDGloader(ABC):
 
     # getters of the private attributes (read_only)
     @property
-    def datasets(self) -> list[pd.DataFrame]:
+    def datasets(self) -> pd.DataFrame:
         return self._datasets
 
     @property
@@ -114,12 +114,14 @@ class LocalSDGLoader(SDGloader):
     def __init__(self) -> None:
         super().__init__()
 
-    def load_data(
-        self, data_location: Path | list[str], persist_data: bool = False
-    ) -> Path | list[pd.DataFrame]:
+    def load_data(self, data_location: Path, persist_data: bool = False) -> None:
         logger.info(f"loading sdg files from {data_location}")
 
-        files = glob(str(data_location) + "/*.csv")
+        files = None
+        if isinstance(data_location, Path):
+            files = glob(str(data_location.absolute()) + "/*.csv")
+        else:
+            files = glob(data_location + "/*.csv")
         files = sorted(files)
 
         logger.info(f"the following files were loaded to memory:")
@@ -139,8 +141,8 @@ class LocalSDGLoader(SDGloader):
         if persist_data is False:
             data = self.remove_duplicates(data)
             self._datasets = data
-
-            return data
+        else:
+            data.to_csv(data_location, index=False)
 
 
 class WandbSDGLoader(SDGloader):
