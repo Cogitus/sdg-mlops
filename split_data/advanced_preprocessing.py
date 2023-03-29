@@ -46,17 +46,17 @@ def main(args: argparse.Namespace) -> None:
     y_test = download_wandb_data(args.y_test, run=run, local_savepath=path_tmp)
 
     # doing the proper NLP preprocessing here
-    logger.info("Starting advanced preprocess for train splits.")
+    logger.info("Starting advanced preprocess for `train` splits.")
     X_train, y_train = advanced_preprocess(
         X_train.to_numpy().flatten(), y_train.to_numpy()
     )
 
-    logger.info("Starting advanced preprocess for validation splits.")
+    logger.info("Starting advanced preprocess for `validation` splits.")
     X_valid, y_valid = advanced_preprocess(
         X_valid.to_numpy().flatten(), y_valid.to_numpy()
     )
 
-    logger.info("Starting advanced preprocess for test splits.")
+    logger.info("Starting advanced preprocess for `test` splits.")
     X_test, y_test = advanced_preprocess(X_test.to_numpy().flatten(), y_test.to_numpy())
 
     # build train set
