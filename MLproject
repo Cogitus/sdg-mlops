@@ -2,70 +2,27 @@ name: SDG multilabel classification
 conda_env: main_environment.yml
 
 entry_points:
-    main:
-        parameters:
-            overriding_configs:
-                # TODO
-                description: >
-                    These are the string-like override methods used by Hydra to 
-                    change the default configurations of the pipeline.
-                type: str
-                default: ''
-        command:
-            python3 main.py  $(echo {overriding_configs})
+  main:
+    parameters:
+      overriding_configs:
+        description: >
+          These are the string-like override methods used by Hydra to 
+          change the default configurations of the pipeline.
+        type: str
+        default: ""
+    command: python3 main.py  $(echo {overriding_configs})
 
-    download_data:
-        parameters:
-            overriding_configs:
-                # TODO
-                description: >
-                    These are the string-like override methods used by Hydra to 
-                    change the default configurations of the pipeline.
-                type: str
-                default: ''
-        command:
-            python3 ./download_data/main.py $(echo {overriding_configs})  
+  download_data:
+    command: python3 main.py 'main.steps2execute=[download_data]'
 
-    preprocess_data:
-        parameters:
-            # TODO
-            description: >
-                These are the string-like override methods used by Hydra to 
-                change the default configurations of the pipeline.
-            type: str
-            default: ''
-        command:
-            python3 ./preprocess_data/main.py $(echo {overriding_configs})
-    
-    split_data:
-        parameters:
-            # TODO
-            description: >
-                These are the string-like override methods used by Hydra to 
-                change the default configurations of the pipeline.
-            type: str
-            default: ''
-        command:
-            python3 ./split_data/main.py $(echo {overriding_configs})
-    
-    train:
-        parameters:
-            # TODO
-            description: >
-                These are the string-like override methods used by Hydra to 
-                change the default configurations of the pipeline.
-            type: str
-            default: ''
-        command:
-            python3 ./train/main.py $(echo {overriding_configs})
-    
-    evaluate_model:
-        parameters:
-            # TODO
-            description: >
-                These are the string-like override methods used by Hydra to 
-                change the default configurations of the pipeline.
-            type: str
-            default: ''
-        command:
-            python3 ./evaluate_model/main.py $(echo {overriding_configs})
+  preprocess_data:
+    command: python3 main.py 'main.steps2execute=[preprocess_data]'
+
+  split_data:
+    command: python3 main.py 'main.steps2execute=[split_data]'
+
+  train:
+    command: python3 main.py 'main.steps2execute=[train]'
+
+  evaluate_model:
+    command: python3 main.py 'main.steps2execute=[evaluate_model]'
