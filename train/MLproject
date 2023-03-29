@@ -1,0 +1,8 @@
+name: training
+conda_env: conda.yml
+
+entry_points:
+  main:
+    parameters:
+    command:
+      python3 run.py

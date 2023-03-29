@@ -1,0 +1,16 @@
+name: train
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.10
+  - pip:
+      - numpy
+      - pandas
+      - scikit-learn
+      - scikit-learn
+      - spacy
+      - tensorflow
+      - tensorflow
+      - wandb
