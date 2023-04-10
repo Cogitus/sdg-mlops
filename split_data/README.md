@@ -32,7 +32,14 @@ And then logging it to wandb as a proper TensorFlow dataset.
 NOTE: The steps `6)`, `7)` and `8.2)` uses the [`joblib`](https://joblib.readthedocs.io/en/latest/) lib to paralellize the execution of the operations. Step `8.1)`, the most time-consuming one, uses `nlp.pipe()` from `spacy` as suggested by the [lib's documentation](https://spacy.io/usage/processing-pipelines#processing).
 
 # A little hint
-Since there is a [`MLproject`](MLproject) at this folder, one can execute this as a separeted project from [the one](../MLproject) at the root of the repository. The only problem is that neither $WANDB_PROJECT nor $WANDB_RUN_GROUP are defined, so the runs at `wandb` will be saved without a proper identification. Anyway, if you want to run each endpoint independently:
+Since there is a [`MLproject`](MLproject) at this folder, one can execute this as a separeted project from [the one](../MLproject) at the root of the repository. The only problem is that neither $WANDB_PROJECT nor $WANDB_RUN_GROUP are defined, so the runs at `wandb` will be saved without a proper identification. Finally, this considers that you're using the conda environment definit at `./split_data/conda.yml`. So, before running the following `mlflow`commands, do this:
+
+```shell
+$ conda env create -f ./split_data/conda.yml
+$ conda activate split_data
+```
+
+Then run:
 
     
 ```shell
