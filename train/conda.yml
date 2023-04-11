@@ -9,8 +9,6 @@ dependencies:
       - numpy
       - pandas
       - scikit-learn
-      - scikit-learn
       - spacy
-      - tensorflow
       - tensorflow
       - wandb

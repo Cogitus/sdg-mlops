@@ -113,5 +113,5 @@ def advanced_preprocess(
     return Z, y
 
 
-def create_dataset(X: Iterable[str], y: Iterable[Iterable[float]]):
+def create_dataset(X: Iterable[str], y: Iterable[Iterable[float]]) -> tf.data.Dataset:
     return tf.data.Dataset.from_tensor_slices((tf.constant(X), tf.constant(y)))

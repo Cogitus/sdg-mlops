@@ -74,9 +74,9 @@ def main(args: argparse.Namespace) -> None:
     datasets_folder = path_tmp / "datasets_sdg_tensorflow"
     mkdir(datasets_folder)
 
-    tf.data.Dataset.save(train_set, str(datasets_folder / "train_set"))
-    tf.data.Dataset.save(valid_set, str(datasets_folder / "valid_set"))
-    tf.data.Dataset.save(test_set, str(datasets_folder / "test_set"))
+    tf.data.Dataset.save(train_set, (datasets_folder / "train_set").as_posix())
+    tf.data.Dataset.save(valid_set, (datasets_folder / "valid_set").as_posix())
+    tf.data.Dataset.save(test_set, (datasets_folder / "test_set").as_posix())
 
     tensorflow_datasets = wandb.Artifact(
         name="tensorflow_datasets",
