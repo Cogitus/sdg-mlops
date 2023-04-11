@@ -6,7 +6,7 @@ entry_points:
   download_language_models:
     command: >-
       python3 download_spacy_model.py
-  
+
   dataset_balancing:
     parameters:
       quantile:
@@ -18,7 +18,8 @@ entry_points:
         type: float
         default: 42
       path_sdg_dataset:
-        description: Path of the 16 downloaded datasets containing the information
+        description:
+          Path of the 16 downloaded datasets containing the information
           about the academic works and their given SDGs.
         type: path
         default: /home/alsinaariel/Downloads/SDGs
@@ -26,7 +27,7 @@ entry_points:
       python3 data_balancing.py --quantile {quantile} \
                                 --random_state {random_state} \
                                 --path_sdg_dataset {path_sdg_dataset}
-                                
+
   preprocess_and_split:
     parameters:
       train_size_factor:
@@ -78,7 +79,9 @@ entry_points:
         type: str
         default: cogitus/sdg-onu/y_test:latest
       tf_batch_size:
-        description: The size of batch for the dataset created
+        description:
+          The size of each batch at the reagrupation of the dataset (an iterable
+          that has each element a tf.Tensor). This is kind of the oposite of np.flatten()
         type: int
         default: 32
       tf_seed:
