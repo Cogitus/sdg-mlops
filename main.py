@@ -120,14 +120,10 @@ def run(configuration: DictConfig) -> None:
                 parameters=execution_step["parameters"],
             )
 
-    # if 'train' in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, 'train'),
-    #         entry_point='main',
-    #         parameters={
-
-    #         }
-    #     )
+    if "train" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "train"), entry_point="main", parameters={}
+        )
 
     # if 'evaluate_model' in STEPS:
     #     mlflow.projects.run(
