@@ -31,7 +31,18 @@ class SDGloader(ABC):
 
         # w&b importing goes here
 
-    def _binarize_data(self, datasets: pd.DataFrame) -> None:
+    def _binarize_data(self, datasets: list[pd.DataFrame]) -> None:
+        """Method that receives a list of pd.DataFrame that each one of these has
+        two columns: one with the text data, the other with the SDG labels concatenated
+        as a string separeted by "|". So the objective is to transform this string
+        in a one-hot encoding of the 16 possible SDGs and then concat it to the original
+        pd.DataFrame.
+
+        Args:
+            datasets (list[pd.DataFrame]): list of all the datasets segmented by SDG.
+                Each of the element of the 16 elements of the list is a pd.DataFrame
+                that stores the information from a academic work that contains that SDG.
+        """
         mlb = MultiLabelBinarizer()
 
         for i, label_dataset in enumerate(datasets):
@@ -119,7 +130,7 @@ class LocalSDGLoader(SDGloader):
 
         files = None
         if isinstance(data_location, Path):
-            files = glob(str(data_location.absolute()) + "/*.csv")
+            files = glob(data_location.absolute().as_posix() + "/*.csv")
         else:
             files = glob(data_location + "/*.csv")
         files = sorted(files)
