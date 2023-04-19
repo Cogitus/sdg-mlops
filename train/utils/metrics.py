@@ -8,9 +8,51 @@ https://mmuratarat.github.io/2020-01-25/multilabel_classification_metrics
 """
 
 import numpy as np
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
 
-def exact_match_ratio(y_true, y_pred):
+def compute_binary_metrics(
+    y_test: np.ndarray, y_preds: np.ndarray, labels: list[str]
+) -> pd.DataFrame:
+    """
+    Compute binary classification metrics for each label.
+
+    Args:
+        y_test (np.ndarray): The true labels of the test set.
+        y_preds (np.ndarray): The predicted labels for the test set.
+        labels (list[str]): A list of labels for the binary classification task.
+
+    Returns:
+        pd.DataFrame: A dataframe containing the computed binary classification metrics for each label.
+    """
+    metrics = {}.fromkeys(labels, None)
+    for label in labels:
+        metrics[label] = {}.fromkeys(
+            ["Accuracy", "Recall", "Precision", "F1 Score", "ROC AUC"], None
+        )
+
+    for i, label in enumerate(labels):
+        y_true = y_test[:, i]
+        y_pred = y_preds[:, i].round()
+
+        metrics[label]["Accuracy"] = accuracy_score(y_true, y_pred)
+        metrics[label]["Recall"] = recall_score(y_true, y_pred)
+        metrics[label]["Precision"] = precision_score(y_true, y_pred)
+        metrics[label]["F1 Score"] = f1_score(y_true, y_pred)
+        metrics[label]["ROC AUC"] = roc_auc_score(y_true, y_pred)
+    metrics_data = pd.DataFrame(metrics).round(4)
+
+    return metrics_data
+
+
+def exact_match_ratio(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the exact match ratio between the true and predicted labels.
 
@@ -25,7 +67,7 @@ def exact_match_ratio(y_true, y_pred):
     return np.all(y_pred == y_true, axis=1).mean()
 
 
-def hamming_score(y_true, y_pred):
+def hamming_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the Hamming score between the true and predicted labels.
     Also known as overall accuracy.
@@ -46,7 +88,7 @@ def hamming_score(y_true, y_pred):
     return accum / y_true.shape[0]
 
 
-def hamming_loss(y_true, y_pred):
+def hamming_loss(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the Hamming loss between the true and predicted labels.
     Also known as overall loss.
@@ -67,7 +109,7 @@ def hamming_loss(y_true, y_pred):
     return accum / (y_true.shape[0] * y_true.shape[1])
 
 
-def precision_overall(y_true, y_pred):
+def precision_overall(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the overall precision between the true and predicted labels.
 
@@ -76,7 +118,7 @@ def precision_overall(y_true, y_pred):
         y_pred (numpy.ndarray): Predicted labels.
 
     Returns:
-    f   loat: The overall precision between the true and predicted labels.
+        float: The overall precision between the true and predicted labels.
     """
 
     accum = 0
@@ -87,7 +129,7 @@ def precision_overall(y_true, y_pred):
     return accum / y_true.shape[0]
 
 
-def recall_overall(y_true, y_pred):
+def recall_overall(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the overall recall between the true and predicted labels.
 
@@ -107,7 +149,7 @@ def recall_overall(y_true, y_pred):
     return accum / y_true.shape[0]
 
 
-def f1_overall(y_true, y_pred):
+def f1_overall(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Calculates the overall F1-score between the true and predicted labels.
 
@@ -129,7 +171,7 @@ def f1_overall(y_true, y_pred):
     return accum / y_true.shape[0]
 
 
-def print_multilabel_metrics(y_true, y_pred):
+def print_multilabel_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> None:
     """
     Print multilabel classification performance metrics.
 
