@@ -1,11 +1,40 @@
+import logging
 import os
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 import tensorflow as tf
 import wandb
-from custom_logging import get_run_logdir, results_logging
 from tensorflow import keras
-from vectorization import build_text_vectorization_layer
+from utils.class_weights import get_class_weight, get_weighted_loss
+from utils.custom_logging import get_run_logdir, results_logging
+from utils.vectorization import build_text_vectorization_layer
+
+# for the typehint of the runs
+from wandb.sdk.wandb_run import Run
+
+logging.basicConfig(
+    format="[%(asctime)s][%(levelname)s]: %(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def donwload_wandb_datasets(
+    artifact_name: str,
+    run: Run,
+    local_savepath: Path = Path("./artifacts"),
+    artifact_type: str = "dataset",
+) -> None:
+    logger.info(
+        f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
+    )
+
+    # import artifact from wandb
+    artifact = run.use_artifact(artifact_name, type=artifact_type)
+    local_savepath = artifact.download(local_savepath)
 
 
 # load pre-saved tensorflow datasets
@@ -113,20 +142,20 @@ def build_model(
 
 
 def train_model(
-    train_set,
-    valid_set,
-    test_set,
-    class_weight_kind,
-    optimizer,
-    learning_rate,
-    units,
-    dropout,
-    constraint,
-    n_hidden,
-    output_sequence_length,
+    train_set: tf.data.Dataset,
+    valid_set: tf.data.Dataset,
+    test_set: tf.data.Dataset,
+    class_weight_kind: str | None,
+    optimizer: str | tf.keras.optimizers.Optimizer,
+    learning_rate: float,
+    units: int,
+    dropout: float,
+    n_hidden: int,
+    output_sequence_length: int,
+    constraint: tf.keras.constraints.Constraint | None = None,
     epochs: int = 50,
     log: bool = False,
-):
+) -> tuple[tf.keras.Model, tf.keras.callbacks.History]:
     # train preparation
     text_vectorization_layer = build_text_vectorization_layer(
         train_set, output_sequence_length
@@ -170,7 +199,7 @@ def train_model(
         keras.callbacks.EarlyStopping(
             monitor="val_accuracy", mode="max", patience=2, restore_best_weights=True
         ),
-        wandb.keras.WandbCallback(),
+        wandb.keras.WandbCallback(labels=get_dataset_labels()),
     ]
 
     # Fit model
@@ -187,3 +216,16 @@ def train_model(
         valid_bce, valid_accuracy = model.evaluate(valid_set)
 
     return model, history
+
+
+def get_dataset_labels() -> list[str]:
+    """Retrieve from the full balanced dataset (previous to the splitting) the
+    name of the labels in the proper order
+
+    Returns:
+        list[str]: list of the labels in order.
+    """
+    api = wandb.Api()
+    artifact = api.artifact("cogitus/sdg-onu/balanced_table:latest", type="dataset")
+
+    return artifact.metadata["label_columns"]
