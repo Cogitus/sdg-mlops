@@ -20,7 +20,7 @@ entry_points:
         default: 6309
       rate: { type: int, default: 2 }
     command: >-
-      python3 run.py --tensorflow_datasets {tensorflow_datasets} \
+      python3 run.py  --tensorflow_datasets {tensorflow_datasets} \
                     --output_sequence_length {output_sequence_length} \
                     --optimizer {optimizer} \
                     --units {units} \

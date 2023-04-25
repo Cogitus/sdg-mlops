@@ -41,20 +41,11 @@ def main(args: argparse.Namespace) -> None:
     with mlflow.start_run():
         constraint = keras.constraints.MaxNorm(max_value=2)
         class_weight_kind = None
-        output_sequence_length = args.output_sequence_length
-        optimizer = args.optimizer
-        units = args.unit
-        dropout = args.dropout
-        n_hidden = args.n_hidden
-        epochs = args.epochs
 
-        initial_learning_rate = args.initial_learning_rate
-        decay_steps = args.decay_steps  # number of steps per epoch
-        rate = args.rate
         # decrease the learning by a factor of 'rate' every 'decay_steps'
-        decay_rate = 1 / rate
+        decay_rate = 1 / args.rate
         lr_scheduler = keras.optimizers.schedules.ExponentialDecay(
-            initial_learning_rate, decay_steps, decay_rate
+            args.initial_learning_rate, args.decay_steps, decay_rate
         )
 
         learning_rate = lr_scheduler
@@ -64,15 +55,15 @@ def main(args: argparse.Namespace) -> None:
             params={
                 "constraint": constraint,
                 "class_weight_kind": class_weight_kind,
-                "output_sequence_length": output_sequence_length,
-                "optimizer": optimizer,
-                "units": units,
-                "dropout": dropout,
-                "n_hidden": n_hidden,
-                "epochs": epochs,
-                "initial_learning_rate": initial_learning_rate,
-                "decay_steps": decay_steps,
-                "rate": rate,
+                "output_sequence_length": args.output_sequence_length,
+                "optimizer": args.optimizer,
+                "units": args.units,
+                "dropout": args.dropout,
+                "n_hidden": args.n_hidden,
+                "epochs": args.epochs,
+                "initial_learning_rate": args.initial_learning_rate,
+                "decay_steps": args.decay_steps,
+                "rate": args.rate,
                 "decay_rate": decay_rate,
             }
         )
@@ -82,14 +73,14 @@ def main(args: argparse.Namespace) -> None:
             valid_set=valid_set,
             test_set=test_set,
             class_weight_kind=class_weight_kind,
-            optimizer=optimizer,
+            optimizer=args.optimizer,
             learning_rate=learning_rate,
-            units=units,
-            dropout=dropout,
-            n_hidden=n_hidden,
-            output_sequence_length=output_sequence_length,
+            units=args.units,
+            dropout=args.dropout,
+            n_hidden=args.n_hidden,
+            output_sequence_length=args.output_sequence_length,
             constraint=constraint,
-            epochs=epochs,
+            epochs=args.epochs,
         )
 
         mlflow.tensorflow.log_model(model, "sdg_models")
@@ -118,6 +109,7 @@ if __name__ == "__main__":
     parser.add_argument("--initial_learning_rate", type=float, required=True)
     parser.add_argument("--decay_steps", type=int, required=True)
     parser.add_argument("--rate", type=int, required=True)
+
     ARGS = parser.parse_args()
 
     main(ARGS)
