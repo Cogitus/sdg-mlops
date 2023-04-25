@@ -25,7 +25,10 @@ def convert_dataset_to_numpy(
             is 'labels', this will be a np.ndarray[np.ndarray[float]], otherwise
             a np.ndarray[str]
     """
-    assert column_type in ["text", "labels"], "column_type must be 'text' or 'labels"
+    assert column_type in [
+        "inputs",
+        "labels",
+    ], "column_type must be 'inputs' or 'labels"
     assert isinstance(dataset, tf.data.Dataset)
 
     NUM_CPUS = cpu_count() - 1
