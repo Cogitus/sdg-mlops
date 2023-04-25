@@ -39,7 +39,11 @@ def main(args: argparse.Namespace) -> None:
             name="balanced_table",
             type="dataset",
             description="The balanced dataset after the preprocessing of removel of duplicate lines and label balancing",
-            metadata={"quantile": args.quantile, "random_state": args.random_state},
+            metadata={
+                "quantile": args.quantile,
+                "random_state": args.random_state,
+                "label_columns": label_columns,
+            },
         )
 
         tmp_dir = TemporaryDirectory()
