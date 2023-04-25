@@ -122,7 +122,24 @@ def run(configuration: DictConfig) -> None:
 
     if "train" in STEPS:
         mlflow.projects.run(
-            uri=os.path.join(ROOT_PATH, "train"), entry_point="main", parameters={}
+            uri=os.path.join(ROOT_PATH, "train"),
+            entry_point="main",
+            parameters={
+                "tensorflow_datasets": configuration["train"]["tensorflow_datasets"],
+                "output_sequence_length": configuration["train"][
+                    "output_sequence_length"
+                ],
+                "optimizer": configuration["train"]["optimizer"],
+                "units": configuration["train"]["units"],
+                "dropout": configuration["train"]["dropout"],
+                "n_hidden": configuration["train"]["n_hidden"],
+                "epochs": configuration["train"]["epochs"],
+                "initial_learning_rate": configuration["train"][
+                    "initial_learning_rate"
+                ],
+                "decay_steps": configuration["train"]["decay_steps"],
+                "rate": configuration["train"]["rate"],
+            },
         )
 
     # if 'evaluate_model' in STEPS:
