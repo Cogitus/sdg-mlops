@@ -1,3 +1,12 @@
+# What is the purpose of this?
+This repository presents an implementation of a multilabel classification solution for scientometric data that classifies inputs into one or more Sustainable Development Goals (SDGs) from the United Nations General Assembly. The model was developed by Alexandre Dias who deserve all the credits for his work.
+
+The goal of this repo, on other way, is to apply the model already developed by the author to a MLops paradigm, making it easier to deploy and maintain.
+
+The Sustainable Development Goals are a set of 17 interconnected goals adopted by the United Nations General Assembly to end poverty, protect the planet, and ensure that all people enjoy peace and prosperity by 2030, although in this solution only 16 will taken into consideration. The accurate classification of scientometric data into the SDGs can contribute to the advancement of these goals.
+
+For further details on the methodology and results of the model, please refer to the original work [here](https://www.sba.org.br/cba2022/wp-content/uploads/artigos_cba2022/paper_4112.pdf).
+
 # 1) Preparing the environment for the first run
 Before running, you must have conda installed on your computer. After that, type the following commands to create and activate the virtual environment that will run the pipeline
 
@@ -84,3 +93,6 @@ $ conda remove --name sdg_main_env --all
 $ cd .. && rm -rf SDG_classification/
 ```
 __OBS__: Be careful, the last two commands also deletes this repository.
+
+# References
+Dias, A., Alves, G., Lima, G., Alsina, A. and Silva, I. (n.d.). Abordagem Cientométrica Orientada a Dados para Classificação Multi-Alvo dos Objetivos de Desenvolvimento Sustentável na Automação. [online] Available at: https://www.sba.org.br/cba2022/wp-content/uploads/artigos_cba2022/paper_4112.pdf [Accessed 25 Apr. 2023].
