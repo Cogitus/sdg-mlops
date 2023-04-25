@@ -149,8 +149,9 @@ class LocalSDGLoader(SDGloader):
         data = pd.concat(datasets, ignore_index=True, axis="index")
         data = data.rename(columns={"Title": "text"})
 
+        data = self.remove_duplicates(data)
+
         if persist_data is False:
-            data = self.remove_duplicates(data)
             self._datasets = data
         else:
             data.to_csv(data_location, index=False)
