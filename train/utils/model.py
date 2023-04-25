@@ -199,7 +199,7 @@ def train_model(
         keras.callbacks.EarlyStopping(
             monitor="val_accuracy", mode="max", patience=2, restore_best_weights=True
         ),
-        wandb.keras.WandbCallback(labels=get_dataset_labels()),
+        wandb.keras.WandbCallback(labels=["SDG " + str(i + 1) for i in range(16)]),
     ]
 
     # Fit model
@@ -216,16 +216,3 @@ def train_model(
         valid_bce, valid_accuracy = model.evaluate(valid_set)
 
     return model, history
-
-
-def get_dataset_labels() -> list[str]:
-    """Retrieve from the full balanced dataset (previous to the splitting) the
-    name of the labels in the proper order
-
-    Returns:
-        list[str]: list of the labels in order.
-    """
-    api = wandb.Api()
-    artifact = api.artifact("cogitus/sdg-onu/balanced_table:latest", type="dataset")
-
-    return artifact.metadata["label_columns"]
