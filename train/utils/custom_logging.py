@@ -5,7 +5,7 @@ from time import strftime
 import numpy as np
 import tensorflow as tf
 import wandb
-from metrics import (
+from utils.metrics import (
     exact_match_ratio,
     f1_overall,
     hamming_loss,

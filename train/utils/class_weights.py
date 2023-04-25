@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow import keras
-from vectorization import convert_dataset_to_numpy
+from utils.vectorization import convert_dataset_to_numpy
 
 
 def compute_class_weights(train_set: tf.data.Dataset) -> np.ndarray[np.ndarray[float]]:
