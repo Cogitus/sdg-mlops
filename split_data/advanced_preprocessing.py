@@ -105,48 +105,56 @@ if __name__ == "__main__":
         help="Path on W&B to the `X_train` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--y_train",
         type=str,
         help="Path on W&B to the `y_train` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--X_valid",
         type=str,
         help="Path on W&B to the `X_valid` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--y_valid",
         type=str,
         help="Path on W&B to the `y_valid` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--X_test",
         type=str,
         help="Path on W&B to the `X_test` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--y_test",
         type=str,
         help="Path on W&B to the `y_test` artifact",
         required=True,
     )
+
     parser.add_argument(
         "--tf_batch_size",
         type=int,
         help="Batch size collected of dataset after creating it with Tensorflow",
         required=True,
     )
+
     parser.add_argument(
         "--tf_seed",
         type=int,
         help="Seed used to shuffle the Tensorflow dataset",
         required=True,
     )
+
     ARGS = parser.parse_args()
 
     main(ARGS)

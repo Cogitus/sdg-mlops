@@ -69,12 +69,14 @@ if __name__ == "__main__":
         help="Counts of labels at which to balance the dataset.",
         required=True,
     )
+
     parser.add_argument(
         "--random_state",
         type=int,
         help="The random seed used to sample the dataframe",
         required=True,
     )
+
     parser.add_argument(
         "--path_sdg_dataset",
         type=Path,

@@ -97,33 +97,39 @@ if __name__ == "__main__":
         help="Path on W&B to the titles artifact",
         required=True,
     )
+
     parser.add_argument(
         "--authors_tag",
         type=str,
         help="Path on W&B to the authors artifact",
         required=True,
     )
+
     parser.add_argument(
         "--affiliations_tag",
         type=str,
         help="Path on W&B to the affiliations artifact",
         required=True,
     )
+
     parser.add_argument(
         "--dois_tag", type=str, help="Path on W&B to the dois artifact", required=True
     )
+
     parser.add_argument(
         "--keywords_tag",
         type=str,
         help="Path on W&B to the keywords artifact",
         required=True,
     )
+
     parser.add_argument(
         "--abstracts_tag",
         type=str,
         help="Path on W&B to the abstracts artifact",
         required=True,
     )
+
     args = parser.parse_args()
 
     main(args)

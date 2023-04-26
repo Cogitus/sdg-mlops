@@ -125,24 +125,28 @@ if __name__ == "__main__":
         help="Coeficient that tells the proportion of the training dataset",
         required=True,
     )
+
     parser.add_argument(
         "--dataset_name",
         type=str,
         help="Path of the preprocessed/balanced dataset at W&B",
         required=True,
     )
+
     parser.add_argument(
         "--test_share_size",
         type=float,
         help="The number that defines the size of the test set (as a percentage of the total)",
         required=True,
     )
+
     parser.add_argument(
         "--random_state",
         type=int,
         help="The random seed used to randomize the split of the full dataset.",
         required=True,
     )
+
     ARGS = parser.parse_args()
 
     main(ARGS)
