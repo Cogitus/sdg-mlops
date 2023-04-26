@@ -3,9 +3,5 @@ conda_env: conda.yml
 
 entry_points:
   main:
-    parameters:
-      parametro_teste:   
-        description: Description for the artifact
-        type: str
     command: >-
       python run.py

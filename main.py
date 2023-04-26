@@ -47,7 +47,6 @@ def run(configuration: DictConfig) -> None:
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "download_data"),
             entry_point="main",
-            parameters={"parametro_teste": "teste"},
         )
 
     if "preprocess_data" in STEPS:

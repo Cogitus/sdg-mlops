@@ -10,6 +10,7 @@ entry_points:
           change the default configurations of the pipeline.
         type: str
         default: ""
+
     command: python3 main.py  $(echo {overriding_configs})
 
   download_data:

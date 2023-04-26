@@ -13,16 +13,19 @@ entry_points:
         description: The quantile of the counts of labels at which to balance the dataset.
         type: float
         default: 0.5
+
       random_state:
         description: The random seed used to sample the pd.DataFrame().
         type: float
         default: 42
+
       path_sdg_dataset:
         description:
           Path of the 16 downloaded datasets containing the information
           about the academic works and their given SDGs.
         type: path
         default: /home/alsinaariel/Downloads/SDGs
+
     command: >-
       python3 data_balancing.py --quantile {quantile} \
                                 --random_state {random_state} \
@@ -34,18 +37,22 @@ entry_points:
         description: Coeficient that rules the proportional size of the training dataset
         type: float
         default: 0.9
+
       dataset_name:
         description: Fully-qualified name of the W&b value of the balanced SDG dataset previously downloaded
         type: str
         default: cogitus/sdg-onu/balanced_table:latest
+
       test_share_size:
         description: The number that defines the size of the test set (as a percentage of the total)
         type: float
         default: 0.2
+
       random_state:
         description: The random seed used to randomize the split of the full dataset.
         type: float
         default: 42
+
     command: >-
       python3 splitting.py --train_size_factor {train_size_factor} \
                           --dataset_name {dataset_name} \
@@ -58,36 +65,44 @@ entry_points:
         description: Fully-qualified name of the W&B artifact-path for X_train
         type: str
         default: cogitus/sdg-onu/X_train:latest
+
       y_train:
         description: Fully-qualified name of the W&B artifact-path for y_train
         type: str
         default: cogitus/sdg-onu/y_train:latest
+
       X_valid:
         description: Fully-qualified name of the W&B artifact-path for X_valid
         type: str
         default: cogitus/sdg-onu/X_valid:latest
+
       y_valid:
         description: Fully-qualified name of the W&B artifact-path for y_valid
         type: str
         default: cogitus/sdg-onu/y_valid:latest
+
       X_test:
         description: Fully-qualified name of the W&B artifact-path for X_test
         type: str
         default: cogitus/sdg-onu/X_test:latest
+
       y_test:
         description: Fully-qualified name of the W&B artifact-path for y_test
         type: str
         default: cogitus/sdg-onu/y_test:latest
+
       tf_batch_size:
         description:
           The size of each batch at the reagrupation of the dataset (an iterable
           that has each element a tf.Tensor). This is kind of the oposite of np.flatten()
         type: int
         default: 32
+
       tf_seed:
         description: The arbitrary seed used on the shuffle() of the Tensorflow's dataset
         type: int
         default: 42
+
     command: >-
       python3 advanced_preprocessing.py --X_train {X_train} \
                                         --y_train {y_train} \
