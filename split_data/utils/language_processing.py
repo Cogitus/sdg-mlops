@@ -22,6 +22,13 @@ logger.setLevel(logging.INFO)
 
 
 def get_stopwords() -> list[str]:
+    """
+        Returns a list of stop words in English language by combining stopwords from
+    NLTK and spaCy.
+
+    Returns:
+        list[str]: A list of English stopwords.
+    """
 
     nltk_stopwords = nltk.corpus.stopwords.words("english")
     nltk_stopwords = set(nltk_stopwords)
@@ -33,14 +40,27 @@ def get_stopwords() -> list[str]:
     stopwords = spacy_stopwords.union(nltk_stopwords)
     stopwords = list(stopwords)
 
-    # tmp_dir.cleanup()
-
     return stopwords
 
 
 def advanced_preprocess(
     X: Iterable[str], y: Iterable[Iterable[float]], truncation: str = "lemma"
 ) -> tuple[Iterable[str], Iterable[Iterable[float]]]:
+    """
+        Perform advanced text preprocessing on a list of sentences. This involves a series
+    of natural language processing steps. Note the the most computational costly
+    ones were parallelized.
+
+    Args:
+        X (Iterable[str]): A list of sentences to preprocess.
+        y (Iterable[Iterable[float]]): A list of corresponding labels for each sentence.
+        truncation (str, optional): The type of text truncation to use. Valid values are 'lemma',
+            'stem', or None. Defaults to 'lemma'.
+
+    Returns:
+        tuple[Iterable[str], Iterable[Iterable[float]]]: A tuple containing the preprocessed
+            sentences (the tokens lists) and their corresponding labels.
+    """
     # 1) Convert text to lowercase
     Z = [text.lower() for text in X]
 
@@ -114,4 +134,15 @@ def advanced_preprocess(
 
 
 def create_dataset(X: Iterable[str], y: Iterable[Iterable[float]]) -> tf.data.Dataset:
+    """Creates a TensorFlow dataset from the given input and target data.
+
+    Args:
+        X (Iterable[str]): An iterable of strings representing input data.
+        y (Iterable[Iterable[float]]): An iterable of iterables of floats representing
+            the input data labels.
+
+    Returns:
+        tf.data.Dataset: A TensorFlow dataset object containing the input and
+            target data.
+    """
     return tf.data.Dataset.from_tensor_slices((tf.constant(X), tf.constant(y)))

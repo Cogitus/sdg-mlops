@@ -21,8 +21,20 @@ logger.setLevel(logging.INFO)
 def download_wandb_data(
     artifact_name: str,
     run: Run,
-    local_savepath: Optional[Path] = Path("./artifacts"),
+    local_savepath: Path = Path("./artifacts"),
 ) -> Path:
+    """Downloads an artifact from W&B and saves it to a local directory.
+
+    Args:
+        artifact_name (str): The name of the artifact to download. This must be
+            a W&B-recognizable identifier.
+        run (wandb.sdk.wandb_run.Run): The W&B run object for logging purposes.
+        local_savepath (pathlib.Path, optional): The local directory to save the artifact.
+            Defaults to Path("./artifacts").
+
+    Returns:
+        pathlib.Path: The path to the downloaded artifact.
+    """
     logger.info(
         f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
     )
@@ -41,15 +53,30 @@ def load_data(filepath: Path) -> Any:
 
 def save_data(
     data: Any,
-    project_name: str,
     filename: str,
-    tags_array: List[str],
+    tags_array: list[str],
     run: Run,
-    filepath: Optional[str] = Path.cwd(),
-    remote: Optional[bool] = False,
+    project_name: str | None = None,
+    filepath: Path = Path.cwd(),
+    remote: bool = False,
 ) -> None:
+    """
+    Save the given data to a file locally or on a W&B project.
+
+    Args:
+        data (Any): The data to be saved.
+        project_name (str | None, optional): The name of the W&B project to save the
+            data to. Defaults to None (if data is to be save remotely).
+        filename (str): The name of the file to save the data to.
+        tags_array (list[str]): A list of tags to apply to the saved artifact.
+        run (wandb.sdk.wandb_run.Run): The W&B run to associate the artifact with.
+        filepath (Path, optional): The path to save the file to locally. Defaults to
+            the current working directory.
+        remote (bool, optional): Whether to save the file on a W&B project. Defaults
+            to False.
+    """
     # local where the file already is or where is to save it (locally)
-    save_path = Path(filepath, filename)
+    save_path = filepath / filename
 
     if remote:
         logger.info(f"Saving {filename} at a wandb project `{project_name}`")

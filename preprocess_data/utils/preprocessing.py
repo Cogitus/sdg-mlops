@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any, List
+from typing import Any
 
 from googletrans import Translator
 from httpcore._exceptions import ReadTimeout
@@ -15,8 +15,19 @@ logger.setLevel(logging.INFO)
 
 
 def detect_langs(
-    translator: Translator, text2convert: List[str], widgets: List[Any]
+    translator: Translator, text2convert: list[str], widgets: list[Any]
 ) -> list:
+    """
+    Detect the language of each text string in a given list of text.
+
+    Args:
+        translator (Translator): An instance of the Translator class to use for language detection.
+        text2convert (list[str]): A list of text strings to detect the language of.
+        widgets (list): A list of widget objects to display the progress bar.
+
+    Returns:
+        list: A list of detected languages corresponding to the input text strings.
+    """
     MAX_SIZE = len(text2convert)
     logger.info(f"detecting languages for the input array of size {MAX_SIZE}")
 
@@ -44,13 +55,28 @@ def detect_langs(
 
 def translate_text(
     translator: Translator,
-    text_arr: List[str],
-    langs: List[str],
-    widgets: List[Any],
+    text_arr: list[str],
+    langs: list[str],
+    widgets: list[Any],
     type_input: str,
     dest: str = "en",
     src: str = "pt",
-) -> List[str]:
+) -> list[str]:
+    """Translate a list of texts to a target language.
+
+    Args:
+        translator (Translator): An instance of the `Translator` class.
+        text_arr (list[str]): A list of texts to be translated.
+        langs (list[str]): A list of the languages of the texts to be translated.
+        widgets (list[Any]): A list of progress bar widgets to display the progress
+            of the translation.
+        type_input (str): The type of the input texts. It can be "titles" or "keywords".
+        dest (str, optional): The target language to translate the texts to. Defaults to "en".
+        src (str, optional): The source language of the texts to be translated. Defaults to "pt".
+
+    Returns:
+        list[str]: A list of translated texts.
+    """
     MAX_SIZE = len(text_arr)
     SLEEP_TIME = 1
 

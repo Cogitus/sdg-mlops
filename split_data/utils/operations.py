@@ -103,6 +103,23 @@ def download_wandb_data(
     local_savepath: Path = Path("./artifacts"),
     artifact_type: str = "dataset",
 ) -> pd.DataFrame:
+    """
+        Downloads a specific artifact from Weights & Biases and returns its content
+    as a pandas DataFrame. Note that this is manly used to download tables from W&B,
+    and so why the function returns a pd.DataFrame.
+
+    Args:
+        artifact_name (str): The name of the artifact to download from Weights & Biases.
+            Note that this must be a W&B-style recognizable string.
+        run (wandb.sdk.wandb_run.Run): The wandb Run object where the artifact is stored.
+        local_savepath (Path, optional): The local directory to download the
+            artifact to. Defaults to Path("./artifacts").
+        artifact_type (str, optional): The type of artifact to download. Defaults
+            to "dataset".
+
+    Returns:
+        pd.DataFrame: A pandas DataFrame containing the contents of the downloaded artifact.
+    """
     logger.info(
         f"loading the `{artifact_name}` from W&B to {local_savepath.absolute()}"
     )
