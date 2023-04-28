@@ -190,7 +190,7 @@ def train_model(
     )
 
     # Define callbacks
-    root_logdir = os.path.join(os.curdir, "my_logs")
+    root_logdir = os.path.join(os.curdir, "tensorboard_logs")
     run_logdir = get_run_logdir(root_logdir)
     model_dir = os.path.join(run_logdir, "model")
 
