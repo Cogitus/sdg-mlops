@@ -22,15 +22,6 @@ class SDGloader(ABC):
         self._is_balanced = False
         self._datasets = None  # will store all 16 SDG dataframe/datasets
 
-    # a "wrapper" to make it work only after the data processing
-    def import_data(self, data_path: Path) -> None:
-        if not self._is_balanced:
-            raise RuntimeError(
-                f"{self.__class__.__name__} must be balanced before importing"
-            )
-
-        # w&b importing goes here
-
     def _binarize_data(self, datasets: list[pd.DataFrame]) -> None:
         """Method that receives a list of pd.DataFrame that each one of these has
         two columns: one with the text data, the other with the SDG labels concatenated
@@ -64,6 +55,20 @@ class SDGloader(ABC):
             )
 
     def remove_duplicates(self, dataset: pd.DataFrame) -> pd.DataFrame:
+        """
+            Removes duplicated data from the input dataset and performs union set
+        on labels for duplicated text entries but different target sets. Raises a
+        RuntimeError if duplicates have already been removed.
+
+        Args:
+            dataset (pd.DataFrame): The dataset to remove duplicates from.
+
+        Raises:
+            RuntimeError: If duplicates have already been removed.
+
+        Returns:
+            pd.DataFrame: The input dataset without duplicates.
+        """
         if self._is_balanced:
             raise RuntimeError(
                 f"{self.__class__.__name__} the removal of duplicates was already done"
@@ -109,6 +114,24 @@ class SDGloader(ABC):
     def load_data(
         self, data_location: Path | list[str], persist_data: bool = False
     ) -> Path | list[pd.DataFrame]:
+        """
+            Load data from a file or any other kind of source. Implement this function
+        at a derived class if the behavior of the data source is differrent, e.g.
+        data from a AWS S3 bucket.
+
+        Args:
+            data_location (Path | list[str]): The file path or a list of file paths
+                to the data files.
+            persist_data (bool, optional): Whether to save the loaded data to disk
+                for faster loading in the future. Defaults to False.
+
+        Raises:
+            NotImplementedError: This method should be implemented in a subclass.
+
+        Returns:
+            (Path | list[pd.DataFrame]): The loaded data as a Pandas DataFrame or a
+                list of DataFrames if multiple files were provided.
+        """
         ...
 
     # getters of the private attributes (read_only)
