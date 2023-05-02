@@ -4,6 +4,14 @@ conda_env: main_environment.yml
 entry_points:
   main:
     parameters:
+      steps:
+        description: >
+          Which steps will be executed at the pipeline. By defautl, what will
+          be executed is training and evaluating, but one can add more steps.
+          Other possibles steps are: download_data, preprocess_data and split_data.
+        type: str
+        default: "train,evaluate_model"
+
       overriding_configs:
         description: >
           These are the string-like override methods used by Hydra to 
@@ -11,19 +19,4 @@ entry_points:
         type: str
         default: ""
 
-    command: python3 main.py  $(echo {overriding_configs})
-
-  download_data:
-    command: python3 main.py 'main.steps2execute=[download_data]'
-
-  preprocess_data:
-    command: python3 main.py 'main.steps2execute=[preprocess_data]'
-
-  split_data:
-    command: python3 main.py 'main.steps2execute=[split_data]'
-
-  train:
-    command: python3 main.py 'main.steps2execute=[train]'
-
-  evaluate_model:
-    command: python3 main.py 'main.steps2execute=[evaluate_model]'
+    command: python3 main.py main.steps2execute=[{steps}] $(echo {overriding_configs})
