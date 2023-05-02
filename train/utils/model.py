@@ -156,6 +156,30 @@ def train_model(
     epochs: int = 50,
     log: bool = False,
 ) -> tuple[tf.keras.Model, tf.keras.callbacks.History]:
+    """Trains a neural network model on the given datasets with the specified parameters.
+
+    Args:
+        train_set (tf.data.Dataset): The training dataset.
+        valid_set (tf.data.Dataset): The validation dataset.
+        test_set (tf.data.Dataset): The testing dataset.
+        class_weight_kind (str | None): The kind of class weights to use for the loss
+            function (that can be 'balanced', None or 'two-to-one').
+        optimizer (str | tf.keras.optimizers.Optimizer): The optimizer to use for
+            training.
+        learning_rate (float): The learning rate for the optimizer.
+        units (int): The number of units in the hidden layer(s) of the model.
+        dropout (float): The dropout rate to use in the model.
+        n_hidden (int): The number of hidden layers in the model.
+        output_sequence_length (int): The length of the output sequences.
+        constraint (tf.keras.constraints.Constraint | None, optional): A constraint
+            to apply to the weights of the model. Defaults to None.
+        epochs (int, optional): The number of epochs to train the model for. Defaults to 50.
+        log (bool, optional): Whether to log the model's results. Defaults to False.
+
+    Returns:
+        tuple[tf.keras.Model, tf.keras.callbacks.History]: A tuple of the trained
+            model and the training history.
+    """
     # train preparation
     text_vectorization_layer = build_text_vectorization_layer(
         train_set, output_sequence_length
