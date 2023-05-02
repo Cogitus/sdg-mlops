@@ -1,5 +1,5 @@
 # What is the purpose of this?
-This repository presents an implementation of a multilabel classification solution for scientometric data that classifies inputs into one or more Sustainable Development Goals (SDGs) from the United Nations General Assembly. The model was developed by Alexandre Dias who deserve all the credits for his work.
+This repository presents an implementation of a multilabel classification solution for scientometric data that classifies inputs into one or more Sustainable Development Goals (SDGs) from the United Nations General Assembly. The model was developed by Alexandre Dias who deserve all the credits for this work.
 
 The goal of this repo, on other way, is to apply the model already developed by the author to a MLops paradigm, making it easier to deploy and maintain.
 
@@ -35,39 +35,41 @@ $ mlflow run .
 Nonetheless, you can change the [default settings](config.yaml) of the project thanks to the flexibility of [*Hydra's package*](https://hydra.cc/docs/intro/), that allows one to override [default's configurations](config.yaml) on each separate run call. If that's the case, then, the paramater ```overriding_configs``` will be receaving a string with the pair ```"configuration=value"``` to change. For example:
 
 ```bash
-$ mlflow run . -P overriding_configs="project_name=deploy_model"
+$ mlflow run . -P overriding_configs="train.n_hidden=2"
 ```
 
 Or in the case of multiple overrides:
 
 ```bash
-$ mlflow run . -P overriding_configs="project_name=deploy_model model.seed=8795"
+$ mlflow run . -P overriding_configs="train.units=50 train.epochs=6 train.rate=3 train.n_hidden=2"
 ```
 
-## Running chosen steps
-If you not specify, all the steps of the pipeline will run on the following order:
-
-1) [```download_data```](download_data/run.py)
-2) [```transform_data```](transform_data/run.py)
-3) [```preprocess_data```](preprocess_data/run.py)
-4) [```split_data```](split_data/run.py)
-5) [```train```](train/run.py)
-6) [```evaluate_model```](evaluate_model/run.py)
-
-But if you want, you can choose to run the steps that you want, although they must follow priority the order above. Thus, if you choose to run ```download_data``` and ```train```, the first experiment (```download_data```) will be executed and then the second (```train```).
-
-The syntax at the CLI that you must use to do so is:
+## But what i you want to run a specific entrypoint?
+For this, the step can be specified as another parameter to mlflow. In that case, the parameter `step`. For this, is good to remeber that in need to be preceeded by the `-P` at the CLI call. For example:
 
 ```bash
-mlflow run . -P overriding_configs="main.steps2execute='download_data,train'"
+$ mlflow run . -P steps='train'
+# or with hydra overridings:
+$ mlflow run . -P steps='train' -P overriding_configs="train.units=50 train.epochs=6 train.rate=3 train.n_hidden=2"
 ```
 
-__OBS__: Note that on that last example, ```model``` is like a dictionary with more than one key inside of it accessible with the ```.``` operator.
+NOTE: For default, the only entrypoints that will execute at the "full" pipeline are `train` and `evaluate_model`. If one wants to execute more than this, then, it will be needed to be explicitly specified, as in:
 
-__OBS²__: There is a difference between the ```transform_data``` and ```preprocess_data``` steps. Since the main objective of the model is to be applied on academic works written in *portuguese*, one needs to first translate the texts from *portuguese* to *english* before working on the Natural Language Processing steps. Thus, ```transform_data``` is responsible for this and ```preprocess_data``` for the other said steps.
+```bash
+$ mlflow run . -P steps='download_data,split_data,train'
+```
 
 ## Another default configurations and configurations override.
-The configurations that are being passed to *Hydra* manipulation can be found at the file [```config.yaml```](config.yaml) and since *Hydra* permits it, they can also be overwriten at the CLI running calls.
+The configurations that are being passed to *Hydra* manipulation can be found at the file [```config.yaml```](config.yaml) and since *Hydra* permits it, they can also be overwriten at the CLI running calls. If you want to know more about the possibilities of overriding the current configuration, check the [hydra's documentation about this](https://hydra.cc/docs/advanced/override_grammar/basic/).
+
+## Multirun in hydra
+Since hydra has the multirun feature, it can be easily done by specifying the `-m` parameter at the `overriding_configs` parameter. In an easier way:
+
+```bash
+$ mlflow run . -P steps='train' -P overriding_configs="train.epochs=6,8 train.rate=3,4,5 train.n_hidden=2 -m"
+```
+
+Note that `train.rate` and `train.epochs` have more than one value, so, when using `-m` hydra will execute multiple runs.
 
 # Removing the MLflow environments created
 To remove the malfunctioning *mlflow* enviroments or to simply reset the local machine to a fresh start condition where you can properly run the project, simply execute the [```reset_envs.sh```](reset_envs.sh) bash script. For this, on your terminal execute the following commands:
