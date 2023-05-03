@@ -1,0 +1,6 @@
+name: evaluate_model
+conda_env: conda.yml
+
+entry_points:
+  main:
+    command: python3 run.py
