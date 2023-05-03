@@ -38,7 +38,7 @@ def main(args: argparse.Namespace) -> None:
     donwload_wandb_datasets(args.tensorflow_datasets, run=run, local_savepath=PATH_TMP)
     train_set, valid_set, test_set = load_datasets(datapath=PATH_TMP)
 
-    with mlflow.start_run() as run:
+    with mlflow.start_run() as mlflow_run:
         constraint = keras.constraints.MaxNorm(max_value=2)
         class_weight_kind = None
 
@@ -86,21 +86,20 @@ def main(args: argparse.Namespace) -> None:
         # this saves the model locally at mlruns folder
         mlflow.tensorflow.log_model(model, "sdg_models")
 
-        # saving the model manually at W&B to avoid multiple model saves for a single run
-        # because of `monitor` parameter behavior of WandbCallback()
-        MODEL_FOLDER = Path.cwd() / Path(
-            f"/mlruns/0/{run.info.run_id}/artifacts/sdg_models/data/model"
-        )
+        RUN_ID = mlflow_run.info.run_id
+    # saving the model manually at W&B to avoid multiple model saves for a single run
+    # because of `monitor` parameter behavior of WandbCallback()
+    MODEL_FOLDER = Path().resolve().parent / Path(
+        f"mlruns/0/{RUN_ID}/artifacts/sdg_models/data/model"
+    )
 
-        logger.info(
-            f"Saving model in W&B of run {run.run_info.run_id} localted at {MODEL_FOLDER}"
-        )
+    logger.info(f"Saving model of run {RUN_ID}  in W&B located at {MODEL_FOLDER}")
 
-        model_artifact = wandb.Artifact(
-            args.model_name, type="model", metadata=model_params
-        )
-        model_artifact.add_dir(MODEL_FOLDER)
-        wandb.run.log_artifact(model_artifact, aliases=["latest"])
+    model_artifact = wandb.Artifact(
+        args.model_name, type="model", metadata=model_params
+    )
+    model_artifact.add_dir(MODEL_FOLDER)
+    wandb.run.log_artifact(model_artifact, aliases=["latest"])
 
     tmp_dir.cleanup()
     run.finish()
