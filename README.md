@@ -71,6 +71,17 @@ $ mlflow run . -P steps='train' -P overriding_configs="train.epochs=6,8 train.ra
 
 Note that `train.rate` and `train.epochs` have more than one value, so, when using `-m` hydra will execute multiple runs.
 
+## Adding new arguments to `/config/run_configurations.yaml`
+If one wants to change `run_configurations.yaml` by removing or adding an argument for a given entrypoint, he'll need to do a serious of recursive changes:
+
+By *adding* a parameter:
+1) Add the parameter to `/config/run_configurations.yaml`
+2) Add the parameter to `parameter` dict() of the `mlflow.projects.run()` call for the desired entrypoint
+3) Add the parameter to the `parameters` section of entrypoint's `MLproject` file.
+4) Add the parameter as an `argparser` argument with `parser.add_argument()` at the file that is called at the entrypoint python call in the section `command`
+
+The same thing is done by *removing* a parameter, except that, obviously, you'll remove instead of adding.
+
 # Removing the MLflow environments created
 To remove the malfunctioning *mlflow* enviroments or to simply reset the local machine to a fresh start condition where you can properly run the project, simply execute the [```reset_envs.sh```](reset_envs.sh) bash script. For this, on your terminal execute the following commands:
 
