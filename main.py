@@ -138,17 +138,16 @@ def run(configuration: DictConfig) -> None:
                 ],
                 "decay_steps": configuration["train"]["decay_steps"],
                 "rate": configuration["train"]["rate"],
+                "model_name": configuration["train"]["model_name"],
             },
         )
 
-    # if 'evaluate_model' in STEPS:
-    #     mlflow.projects.run(
-    #         uri=os.path.join(ROOT_PATH, 'evaluate_model'),
-    #         entry_point='main',
-    #         parameters={
-
-    #         }
-    #     )
+    if "evaluate_model" in STEPS:
+        mlflow.projects.run(
+            uri=os.path.join(ROOT_PATH, "evaluate_model"),
+            entry_point="main",
+            parameters={},
+        )
 
 
 if __name__ == "__main__":

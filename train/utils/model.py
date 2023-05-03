@@ -223,7 +223,9 @@ def train_model(
         keras.callbacks.EarlyStopping(
             monitor="val_accuracy", mode="max", patience=2, restore_best_weights=True
         ),
-        wandb.keras.WandbCallback(labels=["SDG " + str(i + 1) for i in range(16)]),
+        wandb.keras.WandbCallback(
+            save_model=False, labels=["SDG " + str(i + 1) for i in range(16)]
+        ),
     ]
 
     # Fit model

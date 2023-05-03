@@ -38,7 +38,7 @@ def main(args: argparse.Namespace) -> None:
     donwload_wandb_datasets(args.tensorflow_datasets, run=run, local_savepath=PATH_TMP)
     train_set, valid_set, test_set = load_datasets(datapath=PATH_TMP)
 
-    with mlflow.start_run():
+    with mlflow.start_run() as run:
         constraint = keras.constraints.MaxNorm(max_value=2)
         class_weight_kind = None
 
@@ -50,23 +50,23 @@ def main(args: argparse.Namespace) -> None:
 
         learning_rate = lr_scheduler
 
+        model_params = {
+            "constraint": constraint,
+            "class_weight_kind": class_weight_kind,
+            "output_sequence_length": args.output_sequence_length,
+            "optimizer": args.optimizer,
+            "units": args.units,
+            "dropout": args.dropout,
+            "n_hidden": args.n_hidden,
+            "epochs": args.epochs,
+            "initial_learning_rate": args.initial_learning_rate,
+            "decay_steps": args.decay_steps,
+            "rate": args.rate,
+            "decay_rate": decay_rate,
+        }
+
         # logging at mlflow
-        mlflow.log_params(
-            params={
-                "constraint": constraint,
-                "class_weight_kind": class_weight_kind,
-                "output_sequence_length": args.output_sequence_length,
-                "optimizer": args.optimizer,
-                "units": args.units,
-                "dropout": args.dropout,
-                "n_hidden": args.n_hidden,
-                "epochs": args.epochs,
-                "initial_learning_rate": args.initial_learning_rate,
-                "decay_steps": args.decay_steps,
-                "rate": args.rate,
-                "decay_rate": decay_rate,
-            }
-        )
+        mlflow.log_params(params=model_params)
 
         model, history = train_model(
             train_set=train_set,
@@ -83,7 +83,24 @@ def main(args: argparse.Namespace) -> None:
             epochs=args.epochs,
         )
 
+        # this saves the model locally at mlruns folder
         mlflow.tensorflow.log_model(model, "sdg_models")
+
+        # saving the model manually at W&B to avoid multiple model saves for a single run
+        # because of `monitor` parameter behavior of WandbCallback()
+        MODEL_FOLDER = Path.cwd() / Path(
+            f"/mlruns/0/{run.info.run_id}/artifacts/sdg_models/data/model"
+        )
+
+        logger.info(
+            f"Saving model in W&B of run {run.run_info.run_id} localted at {MODEL_FOLDER}"
+        )
+
+        model_artifact = wandb.Artifact(
+            args.model_name, type="model", metadata=model_params
+        )
+        model_artifact.add_dir(MODEL_FOLDER)
+        wandb.run.log_artifact(model_artifact, aliases=["latest"])
 
     tmp_dir.cleanup()
     run.finish()
@@ -109,6 +126,7 @@ if __name__ == "__main__":
     parser.add_argument("--initial_learning_rate", type=float, required=True)
     parser.add_argument("--decay_steps", type=int, required=True)
     parser.add_argument("--rate", type=int, required=True)
+    parser.add_argument("--model_name", type=str, required=True)
 
     ARGS = parser.parse_args()
 

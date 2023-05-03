@@ -45,6 +45,14 @@ entry_points:
         type: int
         default: 2
 
+      model_name:
+        description: >
+          That's the name of the model that will appear at the tab 'model' at the
+          artifacts's window of W&B. It's good to think that this is a way to segment
+          the types/kinds of models.
+        type: str
+        default: RNN_standard
+
     command: >-
       python3 run.py  --tensorflow_datasets {tensorflow_datasets} \
                     --output_sequence_length {output_sequence_length} \
@@ -55,4 +63,5 @@ entry_points:
                     --epochs {epochs} \
                     --initial_learning_rate {initial_learning_rate} \
                     --decay_steps {decay_steps} \
-                    --rate {rate}
+                    --rate {rate} \
+                    --model_name {model_name}
