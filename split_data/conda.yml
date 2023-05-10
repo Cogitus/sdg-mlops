@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pip
+  - pip==23.1.2
   - python=3.10
   - hydra-core=1.3.0
   - pip:
@@ -11,9 +11,9 @@ dependencies:
       - hydra-core==1.3.0
       - nltk==3.8.1
       - hydra-joblib-launcher==1.2.0
-      - numpy
-      - pandas
-      - scikit-learn
-      - spacy
-      - tensorflow
-      - wandb
+      - numpy==1.23.5
+      - pandas==2.0.1
+      - scikit-learn==1.2.2
+      - spacy==3.5.2
+      - tensorflow==2.12.0
+      - wandb==0.15.2
