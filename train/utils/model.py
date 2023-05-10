@@ -154,7 +154,6 @@ def train_model(
     output_sequence_length: int,
     constraint: tf.keras.constraints.Constraint | None = None,
     epochs: int = 50,
-    log: bool = False,
 ) -> tuple[tf.keras.Model, tf.keras.callbacks.History]:
     """Trains a neural network model on the given datasets with the specified parameters.
 
@@ -174,7 +173,6 @@ def train_model(
         constraint (tf.keras.constraints.Constraint | None, optional): A constraint
             to apply to the weights of the model. Defaults to None.
         epochs (int, optional): The number of epochs to train the model for. Defaults to 50.
-        log (bool, optional): Whether to log the model's results. Defaults to False.
 
     Returns:
         tuple[tf.keras.Model, tf.keras.callbacks.History]: A tuple of the trained
@@ -232,13 +230,5 @@ def train_model(
     history = model.fit(
         train_set, validation_data=valid_set, epochs=epochs, callbacks=callbacks
     )
-
-    # Logging metrics
-    if log:
-        results_logging(model, valid_set, test_set, model_dir)
-    else:
-        # Evaluation
-        bce, accuracy = model.evaluate(test_set)
-        valid_bce, valid_accuracy = model.evaluate(valid_set)
 
     return model, history

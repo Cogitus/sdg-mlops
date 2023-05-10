@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from time import strftime
 
+import mlflow
 import numpy as np
 import tensorflow as tf
 import wandb
@@ -14,9 +15,12 @@ from utils.metrics import (
     recall_overall,
 )
 
+# for the typehint of the runs
+from wandb.sdk.wandb_run import Run
+
 
 def get_run_logdir(root_logdir: str) -> str:
-    """Return a directory path for storing the logs and artifacts of a single run.
+    """Return a directory path for storing the infos/metrics/logs of TensorBoard.
 
     Args:
         root_logdir (str): The root directory for storing logs and artifacts.
@@ -33,6 +37,8 @@ def results_logging(
     valid_set: tf.data.Dataset,
     test_set: tf.data.Dataset,
     model_dir: Path | None = None,
+    wandb_run: Run | None = None,
+    mlflow_log: bool = False,
 ) -> None:
     """
     This function logs evaluation results and other metrics using the Weights & Biases
@@ -69,17 +75,20 @@ def results_logging(
     recall = recall_overall(y_true, y_pred)
     f1 = f1_overall(y_true, y_pred)
 
-    wandb.log(
-        {
-            "Accuracy": accuracy,
-            "Validation Accuracy": valid_accuracy,
-            "Loss": bce,
-            "Validation Loss": valid_bce,
-            "Exact Match Ratio": em_ratio,
-            "Hamming Score": overall_accuracy,
-            "Hamming Loss": overall_loss,
-            "Overall Precision": precision,
-            "Overall Recall": recall,
-            "Overall F1": f1,
-        }
-    )
+    metrics = {
+        "Accuracy": accuracy,
+        "Validation Accuracy": valid_accuracy,
+        "Loss": bce,
+        "Validation Loss": valid_bce,
+        "Exact Match Ratio": em_ratio,
+        "Hamming Score": overall_accuracy,
+        "Hamming Loss": overall_loss,
+        "Overall Precision": precision,
+        "Overall Recall": recall,
+        "Overall F1": f1,
+    }
+    wandb_run.log(metrics)
+
+    # only logs at mlflow if explicitly said
+    if mlflow_log:
+        mlflow.log_metrics(metrics)
