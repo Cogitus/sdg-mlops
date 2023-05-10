@@ -92,3 +92,4 @@ def results_logging(
     # only logs at mlflow if explicitly said
     if mlflow_log:
         mlflow.log_metrics(metrics)
+        mlflow.log_param(key="Wandb URL", value=wandb_run.get_url())
