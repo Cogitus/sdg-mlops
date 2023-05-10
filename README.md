@@ -26,7 +26,50 @@ Finally, log in with ```WandB``` to make the data versioning works and the metri
 $ wandb login
 ```
 
+## Preparing the database for storing the logs
+Originally, `mlflow` stores the runs' info at `./mlruns/` folder. There, each folder, e.g., `./mlruns/0/` (that is the "Default" one) represents an [`experiment`](https://mlflow.org/docs/latest/tracking.html#organizing-runs-in-experiments). The purpose of the following configuration is to make all the data that is not related to the trained models to be logged at a `postgresql` database. If you want to decouple it even more, you can store the artifacts (models) at a separated database (like an AWS S3 bucket). Anyway, the configurations is as it follows:
+
+install postegresql
+```bash
+$ sudo apt update
+# download .pgp key, convert to .gpg, save it in /etc/apt/keyrings
+$ curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/postgresql-archive-keyring.gpg >/dev/null
+# add correspondent .list file to /etc/apt/sources.list.d/
+$ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee  /etc/apt/sources.list.d/postgresql.list
+$ sudo apt update
+$ sudo apt install postgresql # this downloads the latest version
+# enable it to initialize with Linux
+$ sudo systemctl start postgresql
+```
+
+access postgres
+```bash
+$ sudo -i -u postgres
+$ psql
+```
+
+
+While inside postgres
+```sql
+CREATE DATABASE mlflow_db;
+CREATE USER mlflow_user WITH ENCRYPTED PASSWORD 'mlflow';
+GRANT ALL PRIVILEGES ON DATABASE mlflow_db TO mlflow_user;
+```
+
+finally, create the directory for the the Tracking Server to log the machine learning models and other artifacts
+```bash
+# execute this command at the root of this repository
+$ mkdir ./mlruns
+```
+
 # 2) Running the pipeline
+Initialize the mlflow server (this step simply indicates to all calls to mlflow runs where the artifacts/models will be save and where the metrics will be logged):
+```bash
+$ mlflow server --backend-store-uri postgresql://mlflow_user:mlflow@localhost/mlflow_db --default-artifact-root file:<PATH_TO_THE_REPO>/SDG_classification/mlruns -h 0.0.0.0 -p 8000
+```
+
+![mlflow server appearence](./imgs/mlflow_interface.png)
+
 The full pipeline is run simply by typing the following command on the CLI at the root folder of this project:
 
 ```bash
@@ -44,7 +87,11 @@ Or in the case of multiple overrides:
 $ mlflow run . -P overriding_configs="train.units=50 train.epochs=6 train.rate=3 train.n_hidden=2"
 ```
 
-## But what i you want to run a specific entrypoint?
+![run info appearence](./imgs/mlflow_run_info.png)
+
+![wandb interface](./imgs/wandb_interface.png)
+
+## But what if you want to run a specific entrypoint?
 For this, the step can be specified as another parameter to mlflow. In that case, the parameter `step`. For this, is good to remeber that in need to be preceeded by the `-P` at the CLI call. For example:
 
 ```bash
@@ -106,6 +153,13 @@ $ conda remove --name sdg_main_env --all
 $ cd .. && rm -rf SDG_classification/
 ```
 __OBS__: Be careful, the last two commands also deletes this repository.
+
+# IMPORTANT CONSIDERATION
+You don't need to run `mlflow server` in order to execute the `mlflow run` calls. But doing that way you will have everything being save at `./mlruns/` folder. And if you really want to do it, comment the line at ./main.py that says:
+
+```python
+os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
+```
 
 # References
 Dias, A., Alves, G., Lima, G., Alsina, A. and Silva, I. (n.d.). Abordagem Cientométrica Orientada a Dados para Classificação Multi-Alvo dos Objetivos de Desenvolvimento Sustentável na Automação. [online] Available at: https://www.sba.org.br/cba2022/wp-content/uploads/artigos_cba2022/paper_4112.pdf [Accessed 25 Apr. 2023].
