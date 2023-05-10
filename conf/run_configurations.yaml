@@ -1,6 +1,6 @@
 main:
   project_name: sdg-onu
-  experiment_name: development
+  experiment_group: development
   steps2execute: # download_data and preprocess_data are not interesting on the full pipeline
     - split_data
     - train
@@ -49,7 +49,7 @@ train:
   initial_learning_rate: 0.01
   decay_steps: 6309
   rate: 2
-  model_name: sdg_classifier
+  model_name: RNN_standard
 
 # evaluate_model:
 

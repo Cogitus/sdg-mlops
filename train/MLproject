@@ -53,8 +53,17 @@ entry_points:
         type: str
         default: RNN_standard
 
+      experiment_name:
+        description: >
+          This is the name that helps in grouping runs. At the folder ./mlruns
+          if the experiment_name is not set, the first and only folder that you'll
+          find is ./mlruns/0/, but with experiment_name, more folder will be found
+          just like ./mlruns/<experiment_name>/
+        type: str
+        default: train
+
     command: >-
-      python3 run.py  --tensorflow_datasets {tensorflow_datasets} \
+      python3 run.py --tensorflow_datasets {tensorflow_datasets} \
                     --output_sequence_length {output_sequence_length} \
                     --optimizer {optimizer} \
                     --units {units} \
@@ -64,4 +73,5 @@ entry_points:
                     --initial_learning_rate {initial_learning_rate} \
                     --decay_steps {decay_steps} \
                     --rate {rate} \
-                    --model_name {model_name}
+                    --model_name {model_name} \
+                    --experiment_name {experiment_name}

@@ -12,20 +12,18 @@ logger = logging.getLogger(__name__)
 @hydra.main(config_path="conf", config_name="run_configurations", version_base=None)
 def run(configuration: DictConfig) -> None:
     # previously setting the wandb configurations
+    os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
     os.environ["WANDB_PROJECT"] = configuration["main"]["project_name"]
-    os.environ["WANDB_RUN_GROUP"] = configuration["main"]["experiment_name"]
+    os.environ["WANDB_RUN_GROUP"] = configuration["main"]["experiment_group"]
 
     logger.info(
         f'`{configuration["main"]["project_name"]}` set as '
         + "the environment variable WANDB_PROJECT"
     )
     logger.info(
-        f'`{configuration["main"]["experiment_name"]}` set as '
+        f'`{configuration["main"]["experiment_group"]}` set as '
         + "the environment variable WANDB_RUN_GROUP"
     )
-
-    # full path of the project root
-    ROOT_PATH = hydra.utils.get_original_cwd()
 
     # verifying if is the arguments were passed as string or as a list.
     if isinstance(configuration["main"]["steps2execute"], str):
@@ -40,16 +38,20 @@ def run(configuration: DictConfig) -> None:
         + " ".join(["`" + step + "`" for step in STEPS])
     )
 
+    # full path of the project root
+    ROOT_PATH = hydra.utils.get_original_cwd()
+
     # OBS: from here and on, all the steps are listed. Its up to the arguments
     # passed to decide which ones will run.
-
     if "download_data" in STEPS:
+        mlflow.set_experiment("download_data")
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "download_data"),
             entry_point="main",
         )
 
     if "preprocess_data" in STEPS:
+        mlflow.set_experiment("preprocess_data")
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "preprocess_data"),
             entry_point="main",
@@ -112,6 +114,7 @@ def run(configuration: DictConfig) -> None:
             },
         ]
 
+        mlflow.set_experiment("split_data")
         for execution_step in PIPELINE_PROGRAM:
             mlflow.projects.run(
                 uri=os.path.join(ROOT_PATH, "split_data"),
@@ -120,9 +123,11 @@ def run(configuration: DictConfig) -> None:
             )
 
     if "train" in STEPS:
+        mlflow.set_experiment("train")
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "train"),
             entry_point="main",
+            experiment_name="train",
             parameters={
                 "tensorflow_datasets": configuration["train"]["tensorflow_datasets"],
                 "output_sequence_length": configuration["train"][
@@ -143,6 +148,7 @@ def run(configuration: DictConfig) -> None:
         )
 
     if "evaluate_model" in STEPS:
+        mlflow.set_experiment("evaluate_model")
         mlflow.projects.run(
             uri=os.path.join(ROOT_PATH, "evaluate_model"),
             entry_point="main",

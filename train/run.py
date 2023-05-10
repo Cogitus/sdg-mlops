@@ -1,11 +1,13 @@
 import argparse
 import logging
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mlflow
 import wandb
 from tensorflow import keras
+from utils.custom_logging import results_logging
 from utils.model import donwload_wandb_datasets, load_datasets, train_model
 
 logging.basicConfig(
@@ -83,14 +85,24 @@ def main(args: argparse.Namespace) -> None:
             epochs=args.epochs,
         )
 
+        # logging the metrics of evaluation at wandb and mlflow
+        results_logging(
+            model=model,
+            valid_set=valid_set,
+            test_set=test_set,
+            wandb_run=run,
+            mlflow_log=True,
+        )
+
         # this saves the model locally at mlruns folder
         mlflow.tensorflow.log_model(model, "sdg_models")
 
         RUN_ID = mlflow_run.info.run_id
     # saving the model manually at W&B to avoid multiple model saves for a single run
     # because of `monitor` parameter behavior of WandbCallback()
+    EXPERIMENT_ID = mlflow.get_experiment_by_name(args.experiment_name)["experiment_id"]
     MODEL_FOLDER = Path().resolve().parent / Path(
-        f"mlruns/0/{RUN_ID}/artifacts/sdg_models/data/model"
+        f"mlruns/{EXPERIMENT_ID}/{RUN_ID}/artifacts/sdg_models/data/model"
     )
 
     logger.info(f"Saving model of run {RUN_ID}  in W&B located at {MODEL_FOLDER}")
@@ -126,7 +138,10 @@ if __name__ == "__main__":
     parser.add_argument("--decay_steps", type=int, required=True)
     parser.add_argument("--rate", type=int, required=True)
     parser.add_argument("--model_name", type=str, required=True)
+    parser.add_argument("--experiment_name", type=str, required=True)
 
     ARGS = parser.parse_args()
+
+    os.environ["MLFLOW_EXPERIMENT_NAME"] = ARGS.experiment_name
 
     main(ARGS)
