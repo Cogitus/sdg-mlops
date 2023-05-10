@@ -5,10 +5,11 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mlflow
-import wandb
 from tensorflow import keras
 from utils.custom_logging import results_logging
 from utils.model import donwload_wandb_datasets, load_datasets, train_model
+
+import wandb
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
@@ -100,7 +101,7 @@ def main(args: argparse.Namespace) -> None:
         RUN_ID = mlflow_run.info.run_id
     # saving the model manually at W&B to avoid multiple model saves for a single run
     # because of `monitor` parameter behavior of WandbCallback()
-    EXPERIMENT_ID = mlflow.get_experiment_by_name(args.experiment_name)["experiment_id"]
+    EXPERIMENT_ID = mlflow.get_experiment_by_name(args.experiment_name).experiment_id
     MODEL_FOLDER = Path().resolve().parent / Path(
         f"mlruns/{EXPERIMENT_ID}/{RUN_ID}/artifacts/sdg_models/data/model"
     )
