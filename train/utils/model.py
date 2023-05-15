@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import wandb
 from tensorflow import keras
 from utils.class_weights import get_class_weight, get_weighted_loss
 from utils.custom_logging import get_run_logdir, results_logging
@@ -13,6 +12,8 @@ from utils.vectorization import build_text_vectorization_layer
 
 # for the typehint of the runs
 from wandb.sdk.wandb_run import Run
+
+import wandb
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",

@@ -20,9 +20,12 @@ logger.setLevel(logging.INFO)
 
 
 def main(args: argparse.Namespace) -> None:
+    wandb.tensorboard.patch(root_logdir="./tensorboard_logs")
+
     run = wandb.init(
         job_type="train",
         project="sdg-onu",
+        sync_tensorboard=True,
         tags=[
             "dev",
             "tf",
