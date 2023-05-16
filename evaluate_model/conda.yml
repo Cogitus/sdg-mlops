@@ -6,9 +6,12 @@ dependencies:
   - pip
   - python=3.10
   - pip:
+      - mlflow
       - numpy
       - pandas
+      - nltk
       - scikit-learn
+      - spacy
       - tensorflow
-      - mlflow
       - wandb
+      - wordcloud

@@ -148,12 +148,24 @@ def run(configuration: DictConfig) -> None:
         )
 
     if "evaluate_model" in STEPS:
+        PIPELINE_PROGRAM = [
+            {"entry_point": "download_language_models", "parameters": {}},
+            {
+                "entry_point": "main",
+                "parameters": {
+                    "model_tag": configuration["evaluate_model"]["model_tag"],
+                    "input_data_tag": configuration["evaluate_model"]["input_data_tag"],
+                },
+            },
+        ]
+
         mlflow.set_experiment("evaluate_model")
-        mlflow.projects.run(
-            uri=os.path.join(ROOT_PATH, "evaluate_model"),
-            entry_point="main",
-            parameters={},
-        )
+        for execution_step in PIPELINE_PROGRAM:
+            mlflow.projects.run(
+                uri=os.path.join(ROOT_PATH, "evaluate_model"),
+                entry_point=execution_step["entry_point"],
+                parameters=execution_step["parameters"],
+            )
 
 
 if __name__ == "__main__":
