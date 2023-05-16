@@ -11,7 +11,6 @@ import tensorflow as tf
 from joblib import Parallel, delayed
 from nltk.stem import SnowballStemmer
 from nltk.tokenize import word_tokenize
-from tqdm import tqdm
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s]: %(message)s",
