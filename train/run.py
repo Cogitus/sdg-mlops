@@ -5,6 +5,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mlflow
+import numpy as np
+from mlflow.models.signature import ModelSignature
+from mlflow.types import DataType
+from mlflow.types.schema import ColSpec, Schema, TensorSpec
 from tensorflow import keras
 from utils.custom_logging import results_logging
 from utils.model import donwload_wandb_datasets, load_datasets, train_model
@@ -98,8 +102,27 @@ def main(args: argparse.Namespace) -> None:
             mlflow_log=True,
         )
 
+        # creating the model signature (for mlflow visualization at its UI and
+        # at the model register)
+        input_schema = Schema(inputs=[TensorSpec(np.dtype(str), (-1,))])
+        # input_schema =  Schema()
+        output_schema = Schema(
+            inputs=[
+                ColSpec(DataType.string, name=feature_name)
+                for feature_name in ["SDG " + str(i + 1) for i in range(16)]
+            ]
+        )
+        signature = ModelSignature(inputs=input_schema, outputs=output_schema)
+
         # this saves the model locally at mlruns folder
-        mlflow.tensorflow.log_model(model, "sdg_models")
+        mlflow.tensorflow.log_model(
+            model,
+            "sdg_models",
+            signature=signature,
+            input_example={
+                "text": "Outdoor navigation with four-engined formations using adaptive slider control"
+            },
+        )
 
         RUN_ID = mlflow_run.info.run_id
     # saving the model manually at W&B to avoid multiple model saves for a single run
