@@ -1,8 +1,7 @@
 main:
   project_name: sdg-onu
   experiment_group: development
-  steps2execute: # download_data and preprocess_data are not interesting on the full pipeline
-    - split_data
+  steps2execute: # download_data, preprocess_data and split_data are not interesting on the full pipeline
     - train
     - evaluate_model
 
@@ -51,7 +50,9 @@ train:
   rate: 2
   model_name: RNN_standard
 
-# evaluate_model:
+evaluate_model:
+  model_tag: cogitus/sdg-onu/RNN_standard:best
+  input_data_tag: cogitus/sdg-onu/titles_en.json:latest
 
 defaults:
   - override hydra/job_logging: custom
