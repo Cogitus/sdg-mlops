@@ -105,7 +105,6 @@ def main(args: argparse.Namespace) -> None:
         # creating the model signature (for mlflow visualization at its UI and
         # at the model register)
         input_schema = Schema(inputs=[TensorSpec(np.dtype(str), (-1,))])
-        # input_schema =  Schema()
         output_schema = Schema(
             inputs=[
                 ColSpec(DataType.string, name=feature_name)
@@ -114,7 +113,7 @@ def main(args: argparse.Namespace) -> None:
         )
         signature = ModelSignature(inputs=input_schema, outputs=output_schema)
 
-        # this saves the model locally at mlruns folder
+        # this logs the model to the mlflow tracking server
         mlflow.tensorflow.log_model(
             model,
             "sdg_models",
@@ -125,11 +124,21 @@ def main(args: argparse.Namespace) -> None:
         )
 
         RUN_ID = mlflow_run.info.run_id
-    # saving the model manually at W&B to avoid multiple model saves for a single run
-    # because of `monitor` parameter behavior of WandbCallback()
-    EXPERIMENT_ID = mlflow.get_experiment_by_name(args.experiment_name).experiment_id
-    MODEL_FOLDER = Path().resolve().parent / Path(
-        f"mlruns/{EXPERIMENT_ID}/{RUN_ID}/artifacts/sdg_models/data/model"
+        EXPERIMENT_ID = mlflow.get_experiment_by_name(
+            args.experiment_name
+        ).experiment_id
+        # this expands to something like /tmp/1/lkhasjbdbnas12khad/
+        MODEL_FOLDER = Path(PATH_TMP, EXPERIMENT_ID, RUN_ID)
+
+    # this properly saves the model locally for the only purpose of further
+    # logginh of it at wandb
+    mlflow.tensorflow.save_model(
+        model,
+        MODEL_FOLDER.as_posix(),
+        signature=signature,
+        input_example={
+            "text": "Outdoor navigation with four-engined formations using adaptive slider control"
+        },
     )
 
     logger.info(f"Saving model of run {RUN_ID}  in W&B located at {MODEL_FOLDER}")
