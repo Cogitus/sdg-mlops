@@ -6,6 +6,7 @@ dependencies:
   - pip=22.1.2
   - python=3.10
   - pip:
+      - boto3
       - hydra-core==1.3.0
       - beautifulsoup4==4.6.3
       - progressbar2==4.2.0
