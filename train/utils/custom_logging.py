@@ -5,7 +5,6 @@ from time import strftime
 import mlflow
 import numpy as np
 import tensorflow as tf
-import wandb
 from utils.metrics import (
     exact_match_ratio,
     f1_overall,
@@ -17,6 +16,8 @@ from utils.metrics import (
 
 # for the typehint of the runs
 from wandb.sdk.wandb_run import Run
+
+import wandb
 
 
 def get_run_logdir(root_logdir: str) -> str:
@@ -36,7 +37,6 @@ def results_logging(
     model: tf.keras.Model,
     valid_set: tf.data.Dataset,
     test_set: tf.data.Dataset,
-    model_dir: Path | None = None,
     wandb_run: Run | None = None,
     mlflow_log: bool = False,
 ) -> None:
@@ -55,10 +55,6 @@ def results_logging(
     # Evaluation
     bce, accuracy = model.evaluate(test_set)
     valid_bce, valid_accuracy = model.evaluate(valid_set)
-
-    # save model
-    if model_dir is not None:
-        model.save(model_dir)
 
     # Logging metrics
     y_pred = (model.predict(test_set) > 0.5) + 0
