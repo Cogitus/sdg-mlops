@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 @hydra.main(config_path="conf", config_name="run_configurations", version_base=None)
 def run(configuration: DictConfig) -> None:
     # previously setting the wandb configurations
-    os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
+    # os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
+    mlflow.set_tracking_uri(
+        "http://ec2-18-222-63-55.us-east-2.compute.amazonaws.com:5000/"
+    )
     os.environ["WANDB_PROJECT"] = configuration["main"]["project_name"]
     os.environ["WANDB_RUN_GROUP"] = configuration["main"]["experiment_group"]
 
