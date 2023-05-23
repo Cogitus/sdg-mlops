@@ -3,19 +3,27 @@ import os
 
 import hydra
 import mlflow
+from dotenv import load_dotenv
 from omegaconf import DictConfig
 
 logger = logging.getLogger(__name__)
+
+# getting environment variables from .env (the AWS secrets)
+load_dotenv()
 
 
 # this hydra decorator passes the dict config as a DictConfig parameter.
 @hydra.main(config_path="conf", config_name="run_configurations", version_base=None)
 def run(configuration: DictConfig) -> None:
+    # defining the tracking server location
+    TRACKING_URI = None
+    if configuration["tracking_server"]["default"] == "aws":
+        TRACKING_URI = configuration["tracking_server"]["uri"]["aws"]
+    else:
+        TRACKING_URI = configuration["tracking_server"]["uri"]["local"]
+    mlflow.set_tracking_uri(TRACKING_URI)
+
     # previously setting the wandb configurations
-    # os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
-    mlflow.set_tracking_uri(
-        "http://ec2-18-222-63-55.us-east-2.compute.amazonaws.com:5000/"
-    )
     os.environ["WANDB_PROJECT"] = configuration["main"]["project_name"]
     os.environ["WANDB_RUN_GROUP"] = configuration["main"]["experiment_group"]
 
