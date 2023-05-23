@@ -62,11 +62,21 @@ finally, create the directory for the the Tracking Server to log the machine lea
 $ mkdir ./mlruns
 ```
 
+## Creating `.env` file
+As the default tracking server is set to be run at an AWS EC2 instance, you'll have to define two environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` at a `.env` named file at the root of this repo. If when running, you change the run to a local tracking server, just ignore the creation of this file.
+
 # 2) Running the pipeline
-Initialize the mlflow server (this step simply indicates to all calls to mlflow runs where the artifacts/models will be save and where the metrics will be logged):
+Initialize the mlflow server (this step simply indicates to all calls to mlflow runs where the artifacts/models will be save and where the metrics will be logged). By default, the tracking server of this project is set to be running at an AWS EC2 instance (for the tracking server) and a RDS PostgreSQL instance for the persistence of the metadata (backend store) and a bucket S3 instance for the persistence of the artifacts (models and other artifacts).
+
+So, assuming that you already have everything set up for the tracking, leave you only to run the projects locally, you can skip this part. If not, [check this tutorial](https://awstip.com/setting-up-a-machine-learning-experiment-tracking-service-for-your-team-with-aws-and-mlflow-5cb39938498).
+
+On the other way, if you want to track the projects locally, with a postgresql and the artifacts being saved at `./mlruns` folder, start the server with this (remember that this considers that you followed the postgres tutorial for the database and user creation): 
 ```bash
-$ mlflow server --backend-store-uri postgresql://mlflow_user:mlflow@localhost/mlflow_db --default-artifact-root file:<PATH_TO_THE_REPO>/SDG_classification/mlruns -h 0.0.0.0 -p 8000
+$ mlflow server --host 0.0.0.0 --backend-store-uri postgresql+psycopg2://mlflow_user:mlflow@localhost/mlflow_db -p 5000
 ```
+_OBS_: Note that a config to the `default-artifact-root` is being ommited, since, by default, as we are not saving on another folder, it will save it the same way as explicitly saying `--default-artifact-root file:<PATH_TO_THE_REPO>/SDG_classification/mlruns`
+
+![mlflow server startup](./imgs/mlflow_server_startup.png)
 
 ![mlflow server appearence](./imgs/mlflow_interface.png)
 
@@ -85,6 +95,11 @@ Or in the case of multiple overrides:
 
 ```bash
 $ mlflow run . -P overriding_configs="train.units=50 train.epochs=6 train.rate=3 train.n_hidden=2"
+```
+
+If you want it to run to a previously started local mlflow tracking server:
+```bash
+mlflow run . -P overriding_configs="tracking_server.default=local"
 ```
 
 ![run info appearence](./imgs/mlflow_run_info.png)
@@ -128,6 +143,17 @@ By *adding* a parameter:
 4) Add the parameter as an `argparser` argument with `parser.add_argument()` at the file that is called at the entrypoint python call in the section `command`
 
 The same thing is done by *removing* a parameter, except that, obviously, you'll remove instead of adding.
+
+# Removing mlflow runs
+To remove the mlflow runs found at the PostgreSQL database, one doesn't need to manually delete the runs applying a series of dificults queries and then search for the artifacts to delete by hand. First, delete it at the GUI interface and then just execute the mlflow cli:
+
+```bash
+# with tracking server running locally
+$ mlflow gc --backend-store-uri postgresql://mlflow_user:mlflow@localhost/mlflow_db
+
+# with tracking server running at aws
+$ mlflow gc --backend-store-uri postgresql+psycopg2://mlflow_user:mlflow.test@<AWS_POSTGRESQL_ENDPOINT>:5432/postgres
+```
 
 # Removing the MLflow environments created
 To remove the malfunctioning *mlflow* enviroments or to simply reset the local machine to a fresh start condition where you can properly run the project, simply execute the [```reset_envs.sh```](reset_envs.sh) bash script. For this, on your terminal execute the following commands:
