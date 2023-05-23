@@ -184,7 +184,7 @@ __OBS__: Be careful, the last two commands also deletes this repository.
 You don't need to run `mlflow server` in order to execute the `mlflow run` calls. But doing that way you will have everything being save at `./mlruns/` folder. And if you really want to do it, comment the line at ./main.py that says:
 
 ```python
-os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:8000"
+os.environ["MLFLOW_TRACKING_URI"] = "http://0.0.0.0:5000"
 ```
 
 # References
