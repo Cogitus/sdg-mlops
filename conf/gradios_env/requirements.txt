@@ -1,0 +1,6 @@
+boto3
+gradio
+mlflow
+numpy
+tensorflow
+dotenv
