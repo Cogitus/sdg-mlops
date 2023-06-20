@@ -3,10 +3,17 @@ import os
 import gradio as gr
 import mlflow
 import numpy as np
-from dotenv import load_dotenv
 
-# getting environment variables from .env (the AWS secrets)
-load_dotenv()
+aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+
+# this only serves for executing the code outside the docker container
+if aws_access_key_id is None or aws_secret_access_key is None:
+    from dotenv import load_dotenv
+
+    # getting environment variables from .env (the AWS secrets)
+    load_dotenv()
+
 mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
 
 
@@ -26,7 +33,11 @@ def predict(model_input):
 
 
 demo = gr.Interface(
-    fn=predict, inputs=gr.Textbox(lines=2, placeholder="Name Here..."), outputs="text"
+    fn=predict,
+    inputs=gr.Textbox(
+        lines=2, placeholder="Type the academic text for classification here"
+    ),
+    outputs="text",
 )
 
-demo.launch()
+demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
