@@ -7,6 +7,11 @@ The Sustainable Development Goals are a set of 17 interconnected goals adopted b
 
 For further details on the methodology and results of the model, please refer to the original work [here](https://www.sba.org.br/cba2022/wp-content/uploads/artigos_cba2022/paper_4112.pdf).
 
+
+At the end, a fully decoupled infrastructure was developed aiming for the in-production deployment of the Mlflow toolkit. That infrastructure is as seem in the image below:
+
+![remote infraestructure](./imgs/infraestructure_solution_remote.png)
+
 # 1) Preparing the environment for the first run
 Before running, you must have conda installed on your computer. After that, type the following commands to create and activate the virtual environment that will run the pipeline
 
